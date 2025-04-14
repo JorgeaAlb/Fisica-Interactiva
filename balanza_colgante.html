@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balanza colgante</title>
-    <!-- Font Awesome para iconos -->
+    <title>Balanza colgante mejorada</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Estilos generales - basados en tu referencia */
         :root {
             --color-primary: #3498db;
             --color-secondary: #e74c3c;
@@ -37,51 +35,6 @@
             flex-direction: column;
         }
         
-        
-        @media (max-width: 768px) {
-    /* Menú hamburguesa */
-    .hamburger-btn {
-        display: block;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        margin-left: auto;
-        padding: 0.5rem;
-    }
-
-    /* Oculta el menú normal en móvil */
-    nav ul {
-        display: none;
-        list-style: none;
-    }
-
-    /* Menú desplegable activo */
-    nav ul.active {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 70px;
-        right: 20px;
-        background-color: var(--secondary-color);
-        border-radius: 5px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        width: 200px;
-        padding: 1rem 0;
-        z-index: 1000;
-    }
-
-    nav ul.active li {
-        padding: 0.5rem 1.5rem;
-        text-align: left;
-    }
-
-    nav ul.active li:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    } }
-
-        /* Estilos del juego */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -96,11 +49,12 @@
             color: #333;
             text-decoration: none;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
         
         .back-btn:hover {
             background-color: #e0e0e0;
+            transform: translateX(-3px);
         }
         
         .game-container {
@@ -110,6 +64,11 @@
             box-shadow: 0 3px 24px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .game-container:hover {
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
         }
         
         .game-container h1 {
@@ -117,13 +76,27 @@
             font-size: 28px;
             margin-bottom: 8px;
             text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .game-container h1::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: var(--color-primary);
+            margin: 10px auto;
+            border-radius: 3px;
         }
         
         .instructions {
-            color: black;
+            color: var(--color-dark);
             font-size: 16px;
             text-align: center;
             margin-bottom: 25px;
+            opacity: 0.8;
         }
         
         .difficulty-selector {
@@ -131,6 +104,7 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         
         .difficulty-btn {
@@ -142,23 +116,46 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .difficulty-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .difficulty-btn:active::after {
+            animation: ripple 0.6s ease-out;
         }
         
         .difficulty-btn.active {
             background-color: var(--color-primary);
             color: white;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.4);
         }
         
         .difficulty-btn:hover:not(.active) {
             background-color: #d6eaf8;
+            transform: translateY(-2px);
         }
         
-        /* Estilos de la balanza */
+        /* Estilos de la balanza mejorada */
         .mobile {
             position: relative;
             width: 300px;
             height: 300px;
             margin: 20px auto;
+            perspective: 1000px;
         }
         
         .top-wire {
@@ -183,23 +180,43 @@
             display: flex;
             justify-content: space-between;
             transition: transform 0.5s ease;
+            transform-style: preserve-3d;
         }
         
         .position-marker {
             width: 10px;
             height: 10px;
             background-color: var(--color-dark);
-            border-radius: 2px;
+            border-radius: 50%;
             margin-top: -3px;
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
             z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         .position-marker:hover {
             transform: scale(1.5);
             background-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.7);
+        }
+        
+        .position-marker::after {
+            content: attr(data-pos);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--color-dark);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .position-marker:hover::after {
+            opacity: 1;
         }
         
         .position-marker.pulse {
@@ -234,14 +251,22 @@
             top: 144px;
             transition: transform 0.5s ease;
             transform-origin: top center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
         }
         
         .left-weight {
             left: -18px;
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
         }
         
         .right-weight {
             right: -18px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
         
         .weight-value {
@@ -249,6 +274,10 @@
             top: 190px;
             font-weight: bold;
             font-size: 14px;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .left-value {
@@ -259,13 +288,33 @@
             right: -10px;
         }
         
-        /* Controles del juego */
+        /* Líneas de distancia */
+        /* .distance-line {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(52, 152, 219, 0.5);
+            top: 70px;
+            z-index: 1;
+        } */
+        
+        /* .distance-label {
+            position: absolute;
+            font-size: 10px;
+            color: var(--color-primary);
+            top: 60px;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+         */
+        /* Controles mejorados */
         .controls {
             margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
         }
         
@@ -273,29 +322,56 @@
             margin: 0 10px;
             font-weight: bold;
             min-width: 80px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .game-container button {
-            padding: 8px 16px;
+            padding: 10px 20px;
             margin: 0 5px;
             background-color: var(--color-primary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 30px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-container button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .game-container button:active::after {
+            animation: ripple 0.6s ease-out;
         }
         
         .game-container button:hover {
             background-color: #2980b9;
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
         }
         
         .game-container button:disabled {
             background-color: var(--color-gray);
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
+            opacity: 0.7;
         }
         
         #hintBtn {
@@ -321,41 +397,77 @@
             color: var(--color-error);
             transition: all 0.3s;
             text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .success-message {
             color: var(--color-success) !important;
+            background: rgba(46, 204, 113, 0.1) !important;
         }
         
         .warning-message {
             color: var(--color-warning) !important;
+            background: rgba(243, 156, 18, 0.1) !important;
         }
         
         .formula-display {
             margin-top: 10px;
-            padding: 10px;
+            padding: 15px;
             background-color: var(--color-light);
-            border-radius: 5px;
+            border-radius: 8px;
             min-height: 40px;
             text-align: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .formula-display p {
+            margin: 5px 0;
+        }
+        
+        .formula-display .formula {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: var(--color-dark);
+            font-size: 18px;
         }
         
         .tutorial {
             margin-top: 20px;
-            padding: 15px;
+            padding: 20px;
             background-color: #e9f7ef;
-            border-radius: 5px;
+            border-radius: 8px;
             display: none;
+            border-left: 4px solid var(--color-success);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
         
         .tutorial h3 {
             margin-top: 0;
             color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .tutorial p {
+            margin-bottom: 10px;
         }
         
         #closeTutorial {
             margin-top: 10px;
             background-color: var(--color-success);
+        }
+        
+        /* Efectos de partículas */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--color-primary);
+            opacity: 0;
+            z-index: 100;
         }
         
         /* Footer */
@@ -372,29 +484,57 @@
             margin: 0 auto;
         }
         
-        /* Animaciones */
+        /* Animaciones mejoradas */
         @keyframes tiltLeft {
             0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(3deg); }
+            50% { transform: rotate(5deg); }
         }
         
         @keyframes tiltRight {
             0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(-3deg); }
+            50% { transform: rotate(-5deg); }
         }
         
         .tilt-left {
-            animation: tiltLeft 1.5s infinite;
+            animation: tiltLeft 1.5s infinite ease-in-out;
         }
         
         .tilt-right {
-            animation: tiltRight 1.5s infinite;
+            animation: tiltRight 1.5s infinite ease-in-out;
         }
         
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 rgba(243, 156, 18, 0.7); }
+            50% { transform: scale(1.2); opacity: 0.7; box-shadow: 0 0 10px rgba(243, 156, 18, 0.7); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 rgba(243, 156, 18, 0.7); }
+        }
+        
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(20, 20); opacity: 0; }
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(300px) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .game-container button {
+                width: 100%;
+                margin: 5px 0;
+            }
         }
     </style>
 </head>
@@ -417,13 +557,12 @@
             </nav>
         </div>
     </header>
-
     <div class="container">
         <a href="games.html" class="back-btn">← Volver a Mini Juegos</a>
         
         <div class="game-container">
             <h1>Equilibra la Balanza</h1>
-            <p class="instructions">Haz clic en los marcadores para mover la soga a esa posición</p>
+            <p class="instructions">Haz clic en los marcadores para mover el punto de apoyo</p>
             
             <div class="difficulty-selector">
                 <button class="difficulty-btn active" data-level="easy">Fácil</button>
@@ -448,6 +587,7 @@
                 <div class="right-weight"></div>
                 <div class="weight-value left-value" id="leftWeight">3</div>
                 <div class="weight-value right-value" id="rightWeight">2</div>
+               
             </div>
             
             <div class="controls">
@@ -465,7 +605,8 @@
             <div class="tutorial" id="tutorial">
                 <h3>¿Cómo jugar?</h3>
                 <p>Para equilibrar la balanza, el producto del peso por la distancia debe ser igual en ambos lados:</p>
-                <p>Peso Izquierdo × Distancia Izquierda = Peso Derecho × Distancia Derecha</p>
+                <p class="formula">Peso Izquierdo × Distancia Izquierda = Peso Derecho × Distancia Derecha</p>
+                <p>Este principio se conoce como la <strong>Ley de la Palanca</strong> descubierta por Arquímedes.</p>
                 <button id="closeTutorial">Entendido</button>
             </div>
         </div>
@@ -479,25 +620,7 @@
     </footer>
 
     <script>
-        // Control del menú hamburguesa
         document.addEventListener('DOMContentLoaded', function() {
-            const hamburgerBtn = document.querySelector('.hamburger-btn');
-            const nav = document.querySelector('nav ul');
-            
-            // Alternar menú
-            hamburgerBtn.addEventListener('click', function() {
-                nav.classList.toggle('active');
-            });
-            
-            // Cerrar menú al hacer clic en enlaces (solo en móvil)
-            document.querySelectorAll('nav ul li a').forEach(item => {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        nav.classList.remove('active');
-                    }
-                });
-            });
-
             // Elementos del juego
             const topWire = document.getElementById('topWire');
             const checkBtn = document.getElementById('checkBtn');
@@ -519,6 +642,10 @@
             const rightWeightElement = document.querySelector('.right-weight');
             const leftWire = document.querySelector('.left-wire');
             const rightWire = document.querySelector('.right-wire');
+            const leftDistanceLine = document.getElementById('leftDistance');
+            const rightDistanceLine = document.getElementById('rightDistance');
+            const leftDistanceLabel = document.getElementById('leftDistanceLabel');
+            const rightDistanceLabel = document.getElementById('rightDistanceLabel');
 
             // Variables del juego
             let gameState = {
@@ -535,7 +662,6 @@
                 gameActive: false,
                 lastHintTime: 0
             };
-
 
             // Inicializar el juego
             function initGame() {
@@ -592,7 +718,6 @@
 
             // Generar pesos según la dificultad
             function generateWeights() {
-                // Asegurarnos de que haya solución exacta en un punto
                 let validWeights = false;
                 let tries = 0;
                 
@@ -627,15 +752,16 @@
                 
                 leftWeightDisplay.textContent = formatWeight(gameState.leftWeight);
                 rightWeightDisplay.textContent = formatWeight(gameState.rightWeight);
+                leftWeightElement.textContent = formatWeight(gameState.leftWeight);
+                rightWeightElement.textContent = formatWeight(gameState.rightWeight);
             }
 
             function formatWeight(weight) {
                 return Number.isInteger(weight) ? weight : weight.toFixed(2);
             }
 
-            // Calcular la posición correcta de equilibrio (siempre entera)
+            // Calcular la posición correcta de equilibrio
             function calculateCorrectPosition() {
-                // Buscar la posición entera que más se acerque al equilibrio
                 let bestPos = 4;
                 let smallestDiff = Infinity;
                 
@@ -667,9 +793,37 @@
                 
                 // Actualizar la inclinación de la balanza
                 updateBalanceTilt();
+                
+                // Actualizar líneas de distancia
+                updateDistanceLines();
             }
 
-            // Actualizar la inclinación visual de la balanza según el equilibrio
+            // Actualizar líneas de distancia
+            function updateDistanceLines() {
+                const leftDistance = gameState.currentPosition - 1;
+                const rightDistance = 7 - gameState.currentPosition;
+                
+                // Calcular posiciones
+                const beamRect = balanceBeam.getBoundingClientRect();
+                const leftPos = (leftDistance / 6) * beamRect.width;
+                const rightPos = (rightDistance / 6) * beamRect.width;
+                
+                // Actualizar líneas
+                leftDistanceLine.style.left = '0px';
+                leftDistanceLine.style.width = `${leftPos}px`;
+                
+                rightDistanceLine.style.right = '0px';
+                rightDistanceLine.style.width = `${rightPos}px`;
+                
+                // Actualizar etiquetas
+                leftDistanceLabel.textContent = `${leftDistance} unidades`;
+                leftDistanceLabel.style.left = `${leftPos / 2}px`;
+                
+                rightDistanceLabel.textContent = `${rightDistance} unidades`;
+                rightDistanceLabel.style.right = `${rightPos / 2}px`;
+            }
+
+            // Actualizar la inclinación visual de la balanza
             function updateBalanceTilt() {
                 // Eliminar clases de animación anteriores
                 balanceBeam.classList.remove('tilt-left', 'tilt-right');
@@ -701,8 +855,7 @@
             // Comprobar si el jugador ha ganado
             function checkWin() {
                 if (!gameState.gameActive) {
-                    messageDisplay.textContent = "El juego no está activo. Presiona 'Nuevo Juego' para comenzar.";
-                    messageDisplay.classList.add('warning-message');
+                    showMessage("El juego no está activo. Presiona 'Nuevo Juego' para comenzar.", 'warning');
                     return;
                 }
                 
@@ -726,17 +879,19 @@
                 scoreDisplay.textContent = gameState.score;
                 
                 // Mostrar mensaje de éxito
-                messageDisplay.textContent = `¡Correcto! Puntuación: +${totalScore}`;
-                messageDisplay.classList.add('success-message');
+                showMessage(`¡Correcto! Puntuación: +${totalScore}`, 'success');
                 
                 // Mostrar la fórmula
                 const leftDist = gameState.currentPosition - 1;
                 const rightDist = 7 - gameState.currentPosition;
                 formulaDisplay.innerHTML = `
                     <p>Fórmula de equilibrio:</p>
-                    <p>${formatWeight(gameState.leftWeight)} × ${leftDist} = ${formatWeight(gameState.rightWeight)} × ${rightDist}</p>
+                    <p class="formula">${formatWeight(gameState.leftWeight)} × ${leftDist} = ${formatWeight(gameState.rightWeight)} × ${rightDist}</p>
                     <p>${(gameState.leftWeight * leftDist).toFixed(2)} = ${(gameState.rightWeight * rightDist).toFixed(2)}</p>
                 `;
+                
+                // Efecto de confeti
+                createConfetti();
                 
                 // Finalizar el juego
                 endGame();
@@ -745,36 +900,44 @@
             function handleIncorrect() {
                 // Mensaje simple basado en posición
                 if (gameState.currentPosition < gameState.correctPosition) {
-                    messageDisplay.textContent = "Intenta mover el punto de apoyo a la derecha";
+                    showMessage("Intenta mover el punto de apoyo a la derecha");
                 } else {
-                    messageDisplay.textContent = "Intenta mover el punto de apoyo a la izquierda";
+                    showMessage("Intenta mover el punto de apoyo a la izquierda");
                 }
-                messageDisplay.className = 'message';
                 
                 // Efecto visual de vibración
                 balanceBeam.classList.add('pulse');
                 setTimeout(() => balanceBeam.classList.remove('pulse'), 500);
             }
 
+            // Mostrar mensaje con tipo (error, success, warning)
+            function showMessage(text, type = 'error') {
+                messageDisplay.textContent = text;
+                messageDisplay.className = 'message';
+                
+                if (type === 'success') {
+                    messageDisplay.classList.add('success-message');
+                } else if (type === 'warning') {
+                    messageDisplay.classList.add('warning-message');
+                }
+            }
+
             // Mostrar pista
             function giveHint() {
                 if (!gameState.gameActive) {
-                    messageDisplay.textContent = "El juego no está activo. Presiona 'Nuevo Juego' para comenzar.";
-                    messageDisplay.classList.add('warning-message');
+                    showMessage("El juego no está activo. Presiona 'Nuevo Juego' para comenzar.", 'warning');
                     return;
                 }
                 
                 if (gameState.hintsUsed >= 3) {
-                    messageDisplay.textContent = "Ya has usado todas las pistas disponibles (3)";
-                    messageDisplay.classList.add('warning-message');
+                    showMessage("Ya has usado todas las pistas disponibles (3)", 'warning');
                     return;
                 }
                 
                 const now = Date.now();
                 if (now - gameState.lastHintTime < 10000) {
                     const secondsLeft = Math.ceil((10000 - (now - gameState.lastHintTime)) / 1000);
-                    messageDisplay.textContent = `Espera ${secondsLeft} segundos antes de usar otra pista`;
-                    messageDisplay.classList.add('warning-message');
+                    showMessage(`Espera ${secondsLeft} segundos antes de usar otra pista`, 'warning');
                     return;
                 }
                 
@@ -785,8 +948,7 @@
                 const marker = document.querySelector(`.position-marker[data-pos="${gameState.correctPosition}"]`);
                 marker.classList.add('pulse');
                 
-                messageDisplay.textContent = `Pista (${gameState.hintsUsed}/3): Coloca en el punto ${gameState.correctPosition}`;
-                messageDisplay.classList.add('warning-message');
+                showMessage(`Pista (${gameState.hintsUsed}/3): Coloca en el punto ${gameState.correctPosition}`, 'warning');
                 
                 if (gameState.hintsUsed >= 3) {
                     hintBtn.disabled = true;
@@ -798,11 +960,39 @@
                 }, 3000);
             }
 
+            // Crear efecto de confeti
+            function createConfetti() {
+                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
+                const mobile = document.querySelector('.mobile');
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.width = `${Math.random() * 8 + 4}px`;
+                    confetti.style.height = `${Math.random() * 8 + 4}px`;
+                    confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`;
+                    mobile.appendChild(confetti);
+                    
+                    // Eliminar después de la animación
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+
             // Iniciar temporizador
             function startTimer() {
                 gameState.timer = setInterval(function() {
                     gameState.timeLeft--;
                     timerDisplay.textContent = gameState.timeLeft;
+                    
+                    // Cambiar color cuando queda poco tiempo
+                    if (gameState.timeLeft <= 10) {
+                        timerDisplay.style.color = 'var(--color-error)';
+                        timerDisplay.style.fontWeight = 'bold';
+                    }
                     
                     if (gameState.timeLeft <= 0) {
                         endGame(true);
@@ -820,8 +1010,7 @@
                 hintBtn.disabled = true;
                 
                 if (timeout) {
-                    messageDisplay.textContent = "¡Tiempo terminado! El juego ha finalizado.";
-                    messageDisplay.className = 'message';
+                    showMessage("¡Tiempo terminado! El juego ha finalizado.");
                     
                     // Mostrar la solución
                     const leftDist = gameState.correctPosition - 1;
@@ -829,7 +1018,7 @@
                     formulaDisplay.innerHTML = `
                         <p>Solución:</p>
                         <p>Posición correcta: ${gameState.correctPosition}</p>
-                        <p>${formatWeight(gameState.leftWeight)} × ${leftDist} = ${formatWeight(gameState.rightWeight)} × ${rightDist}</p>
+                        <p class="formula">${formatWeight(gameState.leftWeight)} × ${leftDist} = ${formatWeight(gameState.rightWeight)} × ${rightDist}</p>
                     `;
                 }
                 
@@ -844,6 +1033,12 @@
                     
                     gameState.currentPosition = parseInt(this.getAttribute('data-pos'));
                     updateWirePosition();
+                    
+                    // Efecto de clic
+                    this.style.transform = 'scale(1.8)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1.5)';
+                    }, 200);
                 });
             });
 
