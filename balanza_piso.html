@@ -537,48 +537,65 @@
             }
         }
 
-        @media (max-width: 480px) {
-            .warning-content {
-                padding: 20px 15px;
-                width: 90%;
-            }
-            
-            .warning-icon {
-                font-size: 40px;
-            }
-            
-            .balance-apparatus {
-                height: 350px;
-            }
-            
-            .balance-side {
-                width: 95%;
-            }
-            
-            .weight {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
-            }
-            
-            .weight-pool {
-                padding: 10px;
-            }
-        }
+    @media (max-width: 768px) {
+    /* Menú hamburguesa */
+    .hamburger-btn {
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        margin-left: auto;
+        padding: 0.5rem;
+    }
+
+    /* Oculta el menú normal en móvil */
+    nav ul {
+        display: none;
+        list-style: none;
+    }
+
+    /* Menú desplegable activo */
+    nav ul.active {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background-color: var(--secondary-color);
+        border-radius: 5px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        width: 200px;
+        padding: 1rem 0;
+        z-index: 1000;
+    }
+
+    nav ul.active li {
+        padding: 0.5rem 1.5rem;
+        text-align: left;
+    }
+
+    nav ul.active li:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    } }
     </style>
 </head>
 <body>
     <header>
         <div class="header-container">
-            <a href="home.html" class="logo">Física Interactiva</a>
+            <a href="home.html" class="logo">
+                <i class="fas fa-atom"></i>
+                <span>Física Interactiva</span>
+            </a>
             <button class="hamburger-btn" aria-label="Menú">
                 <i class="fas fa-bars"></i>
             </button>
             <nav>
                 <ul>
-                    <li><a href="home.html">Inicio</a></li>
-                    <li><a href="games.html">Mini Juegos</a></li>
-                    <li><a href="calculator.html">Calculadora</a></li>
+                    <li><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
+                    <li><a href="games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
                 </ul>
             </nav>
         </div>
@@ -963,6 +980,23 @@
             // Iniciar el juego
             initGame();
         });
+
     </script>
+<script>
+    // Menú hamburguesa
+    document.querySelector('.hamburger-btn').addEventListener('click', function() {
+        document.querySelector('nav ul').classList.toggle('active');
+    });
+    
+    // Cerrar menú al hacer clic en enlaces (solo en móvil)
+    document.querySelectorAll('nav ul li a').forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                document.querySelector('nav ul').classList.remove('active');
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
