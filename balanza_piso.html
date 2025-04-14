@@ -620,6 +620,9 @@
                 <button class="level-btn active" data-level="1">Nivel 1</button>
                 <button class="level-btn" data-level="2">Nivel 2</button>
                 <button class="level-btn" data-level="3">Nivel 3</button>
+                <button class="level-btn" data-level="4">Nivel 4</button>
+                <button class="level-btn" data-level="5">Nivel 5</button>
+                <button class="level-btn" data-level="6">Nivel 6</button>
             </div>
             
             <div class="game-stats">
@@ -706,6 +709,27 @@
                     movableWeights: [-2, -1, 1, 2, 3, 4, 5, 6],
                     maxAttempts: 3,
                     points: 30
+                },
+                4: {
+                    instruction: "Desafío de múltiples pesos: encuentra la combinación perfecta",
+                    fixedWeights: [15, -2, 7, 4],
+                    movableWeights: [3, 4, 5, 6, 7, 8, -1, -3],
+                    maxAttempts: 4,
+                    points: 40
+                },
+                5: {
+                    instruction: "Nivel experto: pesos grandes y pequeños",
+                    fixedWeights: [25, -5, 12, -8],
+                    movableWeights: [2, 3, 5, 7, 10, -2, -4, -6],
+                    maxAttempts: 3,
+                    points: 50
+                },
+                6: {
+                    instruction: "Nivel maestro: equilibrio preciso con muchos elementos",
+                    fixedWeights: [18, -4, 9, -3, 7, 5],
+                    movableWeights: [5, 3, 7, 3, 2, 1, 9, 5, 1, 8, -1, -2, -3, -4],
+                    maxAttempts: 5,
+                    points: 60
                 }
             };
             
@@ -829,7 +853,7 @@
                     scoreDisplay.textContent = score;
                     showFeedback(`¡Perfectamente equilibrado! +${level.points} puntos`, true);
                     setTimeout(() => {
-                        if (currentLevel < 3) {
+                        if (currentLevel < Object.keys(levels).length) {
                             changeLevel(currentLevel + 1);
                         } else {
                             showFeedback(`¡Felicidades! Has completado todos los niveles con ${score} puntos`, true);
