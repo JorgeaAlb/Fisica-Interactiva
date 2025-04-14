@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiro al blanco</title>
     <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Estilos generales basados en tu referencia */
@@ -36,72 +37,7 @@
             display: flex;
             flex-direction: column;
         }
-        
-        /* Header y menú */
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 100;
-        }
-        
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--color-dark);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo i {
-            color: var(--color-primary);
-        }
-        
-        .hamburger-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--color-dark);
-            cursor: pointer;
-            padding: 0.5rem;
-            display: none;
-            z-index: 1001;
-            transition: all 0.3s;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-        
-        nav ul li a {
-            text-decoration: none;
-            color: var(--color-dark);
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        nav ul li a:hover {
-            background-color: var(--color-light);
-            color: var(--color-primary);
-        }
+     
         
         /* Contenedor principal */
         .container {
@@ -117,18 +53,15 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 8px 16px;
-            background-color: var(--color-light);
-            color: var(--color-dark);
+            background-color: #f0f0f0;
+            color: #333;
             text-decoration: none;
             border-radius: 4px;
-            transition: all 0.3s;
-            border: 1px solid var(--color-gray);
+            transition: background-color 0.3s;
         }
         
         .back-btn:hover {
             background-color: #e0e0e0;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .game-container {
@@ -176,6 +109,7 @@
             align-items: center;
             margin-top: 20px;
         }
+        
         
         .control-group {
             background: var(--color-light);
@@ -335,35 +269,7 @@
             margin: 0 auto;
         }
         
-        /* Estilos responsivos */
-        @media (max-width: 768px) {
-            /* Menú hamburguesa */
-            .hamburger-btn {
-                display: block;
-            }
-            
-            nav ul {
-                display: none;
-                position: absolute;
-                top: 70px;
-                right: 20px;
-                background-color: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                width: 200px;
-                padding: 1rem 0;
-                z-index: 1000;
-            }
-            
-            nav ul.active {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            nav ul li a {
-                padding: 0.75rem 1.5rem;
-            }
+       
             
             /* Ajustes del juego para móviles */
             .controls {
@@ -385,7 +291,7 @@
                 width: 90%;
                 padding: 20px;
             }
-        }
+        
     </style>
 </head>
 <body>
@@ -415,7 +321,7 @@
             <!-- Mensaje para móviles -->
             <div id="mobile-warning" class="mobile-warning">
                 <div class="warning-content">
-                    <div class="warning-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="warning-icon">📱</div>
                     <h3>Experiencia optimizada para computadora</h3>
                     <p>Este juego funciona mejor en pantallas grandes. Puedes continuar en móvil, pero algunos elementos podrían no verse perfectamente.</p>
                     <button id="continue-mobile" class="game-button">Entendido, jugar igual</button>
