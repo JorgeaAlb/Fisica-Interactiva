@@ -58,6 +58,10 @@
                 <option value="densidad">Densidad (ρ = m/V)</option>
                 <option value="presion">Presión (P = F/A)</option>
                 <option value="presion-hidrostatica">Presión Hidrostática (P = ρ·g·h)</option>
+                <option value="pascal">Principio de Pascal (F₁/A₁ = F₂/A₂)</option>
+                <option value="arquimedes">Principio de Arquímedes (E = ρ·g·Vₛ)</option>
+                <option value="energia-potencial">Energía Potencial (P = m·g·h)</option>
+                <option value="energia-cinetica">Energía Cinética (K = ½mv²)</option>
             </select>
         </div>
         
@@ -190,6 +194,79 @@
             <button class="calculate-btn" onclick="calculatePresionHidrostatica()">Calcular Presión Hidrostática</button>
             <div id="presion-hidrostatica-result" class="result"></div>
         </div>
+
+                <!-- Principio de Pascal -->
+        <div id="pascal-inputs" class="formula-inputs" style="display: none;">
+            <div class="input-group">
+                <label for="f1">💪 Fuerza 1 (N):</label>
+                <input type="number" id="f1" placeholder="F₁">
+            </div>
+            <div class="input-group">
+                <label for="a1">📐 Área 1 (m²):</label>
+                <input type="number" id="a1" placeholder="A₁">
+            </div>
+            <div class="input-group">
+                <label for="f2">💪 Fuerza 2 (N):</label>
+                <input type="number" id="f2" placeholder="F₂ (dejar vacío para calcular)">
+            </div>
+            <div class="input-group">
+                <label for="a2">📐 Área 2 (m²):</label>
+                <input type="number" id="a2" placeholder="A₂ (dejar vacío para calcular)">
+            </div>
+            <button class="calculate-btn" onclick="calculatePascal()">Calcular</button>
+            <div id="pascal-result" class="result"></div>
+        </div>
+
+        <!-- Principio de Arquímedes -->
+        <div id="arquimedes-inputs" class="formula-inputs" style="display: none;">
+            <div class="input-group">
+                <label for="densidad-arq">🧪 Densidad del fluido (kg/m³):</label>
+                <input type="number" id="densidad-arq" placeholder="Ej: 1000 (agua)">
+            </div>
+            <div class="input-group">
+                <label for="gravedad-arq">🌍 Gravedad (m/s²):</label>
+                <input type="number" id="gravedad-arq" placeholder="9.81" value="9.81">
+            </div>
+            <div class="input-group">
+                <label for="volumen-sumergido">🏊 Volumen sumergido (m³):</label>
+                <input type="number" id="volumen-sumergido" placeholder="Vₛ">
+            </div>
+            <button class="calculate-btn" onclick="calculateArquimedes()">Calcular Empuje</button>
+            <div id="arquimedes-result" class="result"></div>
+        </div>
+
+        <!-- Energía Potencial -->
+        <div id="energia-potencial-inputs" class="formula-inputs" style="display: none;">
+            <div class="input-group">
+                <label for="masa-ep">🏋️ Masa (kg):</label>
+                <input type="number" id="masa-ep" placeholder="Ingrese la masa">
+            </div>
+            <div class="input-group">
+                <label for="gravedad-ep">🌍 Gravedad (m/s²):</label>
+                <input type="number" id="gravedad-ep" placeholder="9.81 (Tierra)" value="9.81">
+            </div>
+            <div class="input-group">
+                <label for="altura">📏 Altura (metros):</label>
+                <input type="number" id="altura" placeholder="Ingrese la altura">
+            </div>
+            <button class="calculate-btn" onclick="calculateEnergiaPotencial()">Calcular Energía Potencial</button>
+            <div id="energia-potencial-result" class="result"></div>
+        </div>
+
+                <!-- Energía Cinética -->
+        <div id="energia-cinetica-inputs" class="formula-inputs" style="display: none;">
+            <div class="input-group">
+                <label for="masa-ec">🏋️ Masa (kg):</label>
+                <input type="number" id="masa-ec" placeholder="Ingrese la masa">
+            </div>
+            <div class="input-group">
+                <label for="velocidad">🚀 Velocidad (m/s):</label>
+                <input type="number" id="velocidad" placeholder="Ingrese la velocidad">
+            </div>
+            <button class="calculate-btn" onclick="calculateEnergiaCinetica()">Calcular Energía Cinética</button>
+            <div id="energia-cinetica-result" class="result"></div>
+        </div>
+
     </div>
 </div>
 
@@ -274,6 +351,52 @@ function calculatePresionHidrostatica() {
 window.onload = function() {
     showSelectedFormula();
 };
+
+// Principio de Pascal (calcula F2 o A2 según lo que falte)
+function calculatePascal() {
+    const F1 = parseFloat(document.getElementById('f1').value);
+    const A1 = parseFloat(document.getElementById('a1').value);
+    const F2 = parseFloat(document.getElementById('f2').value);
+    const A2 = parseFloat(document.getElementById('a2').value);
+    
+    let result;
+    if (!isNaN(F1) && !isNaN(A1) && !isNaN(F2) && isNaN(A2)) {
+        result = (F2 * A1) / F1; // Calcula A2
+        document.getElementById('pascal-result').innerHTML = `Área 2 (A₂) = ${result.toFixed(2)} m²`;
+    } 
+    else if (!isNaN(F1) && !isNaN(A1) && isNaN(F2) && !isNaN(A2)) {
+        result = (F1 * A2) / A1; // Calcula F2
+        document.getElementById('pascal-result').innerHTML = `Fuerza 2 (F₂) = ${result.toFixed(2)} N`;
+    } 
+    else {
+        document.getElementById('pascal-result').innerHTML = "⚠️ Ingresa tres valores para calcular el cuarto.";
+    }
+}
+
+// Principio de Arquímedes
+function calculateArquimedes() {
+    const ρ = parseFloat(document.getElementById('densidad-arq').value);
+    const g = parseFloat(document.getElementById('gravedad-arq').value);
+    const Vₛ = parseFloat(document.getElementById('volumen-sumergido').value);
+    const result = ρ * g * Vₛ;
+    document.getElementById('arquimedes-result').innerHTML = `Empuje = ${result.toFixed(2)} N`;
+}
+
+function calculateEnergiaPotencial() {
+    const m = parseFloat(document.getElementById('masa-ep').value);
+    const g = parseFloat(document.getElementById('gravedad-ep').value);
+    const h = parseFloat(document.getElementById('altura').value);
+    const result = m * g * h;
+    document.getElementById('energia-potencial-result').innerHTML = `Energía Potencial = ${result.toFixed(2)} J (Julios)`;
+}
+
+function calculateEnergiaCinetica() {
+    const m = parseFloat(document.getElementById('masa-ec').value);
+    const v = parseFloat(document.getElementById('velocidad').value);
+    const result = 0.5 * m * Math.pow(v, 2); // K = ½mv²
+    document.getElementById('energia-cinetica-result').innerHTML = `Energía Cinética = ${result.toFixed(2)} J (Julios)`;
+}
+
 </script>
 
 
