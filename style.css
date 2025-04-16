@@ -121,15 +121,11 @@ nav ul li a:hover {
 
 .option-btn:hover {
     transform: translateY(-3px); /* Elevación sutil */
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1), 3px 3px 6px rgb(147, 194, 232);
+    box-shadow: -3px -3px 6px rgb(147, 194, 232), 3px 3px 6px rgb(147, 194, 232);
     background-color: var(--primary-color);
     color: white;
 }
 
-.option-btn:active {
-    /* Efecto "presionado" */
-    box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.1), inset 3px 3px 6px rgba(255, 255, 255, 0.8);
-}
 /* Contenido de páginas */
 .container {
     flex: 1;
@@ -197,11 +193,13 @@ nav ul li a:hover {
     border-radius: 50px;
     text-decoration: none;
     font-weight: bold;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s; 
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.1), 3px 3px 6px rgb(134, 214, 236);
 }
 
 .play-btn:hover {
     background-color: var(--dark-color);
+    box-shadow: 3px 3px 6px rgba(0,0,0,0.1), 3px 3px 6px rgba(2, 29, 59, 0.8);
 }
 
 /* Footer */
