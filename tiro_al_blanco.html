@@ -209,6 +209,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(3px);
         }
         
         .warning-content {
@@ -222,22 +223,35 @@
         }
         
         .warning-icon {
-            font-size: 3rem;
+            font-size: 50px;
             margin-bottom: 15px;
-            color: var(--color-primary);
         }
         
         .warning-content h3 {
             color: var(--color-dark);
             margin-bottom: 10px;
-            font-size: 1.5rem;
         }
         
         .warning-content p {
             color: var(--color-text);
             margin-bottom: 20px;
             line-height: 1.5;
-            font-size: 1.1rem;
+        }
+        
+        .btn-continue {
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         
         /* Footer */
@@ -391,7 +405,7 @@
                     <div class="warning-icon">📱</div>
                     <h3>Experiencia optimizada para computadora</h3>
                     <p>Este juego funciona mejor en pantallas grandes. Puedes continuar en móvil, pero algunos elementos podrían no verse perfectamente.</p>
-                    <button id="continue-mobile" class="game-button">Entendido, jugar igual</button>
+                    <button id="continue-mobile" class="btn btn-continue">Entendido, jugar igual</button>
                 </div>
             </div>
             
