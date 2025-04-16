@@ -400,7 +400,7 @@ footer {
 
     /* Ajustes generales para móvil */
     .hero h1 {
-        font-size: 3.2em;
+        font-size: 3.5em;
 
     }
 
@@ -415,7 +415,7 @@ footer {
 
     .option-btn {
         padding: 1rem 3rem;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .games-grid {
