@@ -401,7 +401,8 @@ footer {
     /* Ajustes generales para móvil */
     .hero h1 {
     font-size: 3.5em;
-    line-height: 1.2;    /* Reduce el espacio vertical entre líneas (ajusta según necesidad) */ /* Opcional: reduce el espacio entre palabras si están en la misma línea */
+    line-height: 1.2;
+    margin-bottom: 2rem;
 }
 
     .hero p {
