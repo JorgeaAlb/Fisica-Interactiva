@@ -400,7 +400,8 @@ footer {
 
     /* Ajustes generales para móvil */
     .hero h1 {
-        font-size: 2.5rem;
+        font-size: 3.2em;
+
     }
 
     .hero p {
@@ -409,12 +410,12 @@ footer {
 
     .options {
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .option-btn {
-        padding: 1rem 3.4rem;
-        font-size: 1.3rem;
+        padding: 1rem 3rem;
+        font-size: 1rem;
     }
 
     .games-grid {
