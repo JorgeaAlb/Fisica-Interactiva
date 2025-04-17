@@ -68,12 +68,15 @@
         
         .game-container {
             width: 100%;
+            max-width: 800px; /* Añade un máximo ancho */
+            margin: 0 auto; /* Centra el contenedor */
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 3px 24px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             padding: 20px;
             margin-bottom: 1.5rem;
+            position: relative; /* Para posicionar elementos hijos */
         }
         
         .game-container h2 {
@@ -184,18 +187,7 @@
             color: var(--color-dark);
         }
         
-        .level-display {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1rem;
-            z-index: 10;
-        }
+        
         
         /* Mensaje para móviles */
         .mobile-warning {
@@ -373,6 +365,46 @@
                 font-size: 1.1rem;
             }
         }
+
+        /* Agregar esto en la sección de estilos */
+.success-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.message-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.message-content h3 {
+    color: var(--color-success);
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+.message-content p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
     </style>
 </head>
 <body>
@@ -433,6 +465,14 @@
                 <p>Flechas usadas: <span id="shotsUsed">0</span>/<span id="maxShots">3</span></p>
                 <p>Distancia al blanco: <span id="distanceToTarget">0</span> m</p>
             </div>
+        </div>
+    </div>
+
+    <div id="successMessage" class="success-message hidden">
+        <div class="message-content">
+            <h3>¡Acertaste!</h3>
+            <p>Has alcanzado el objetivo. ¡Buen trabajo!</p>
+            <button id="continueBtn" class="game-button">Continuar</button>
         </div>
     </div>
 
@@ -1068,6 +1108,34 @@
             
             initLevel(currentLevel);
         }
+        function endShot(hit) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+    
+    if(gameActive) {
+        angleSlider.disabled = false;
+        powerSlider.disabled = false;
+        launchBtn.disabled = false;
+    }
+    
+    if(hit) {
+        gameActive = false;
+        // Mostrar mensaje de éxito en lugar del botón de siguiente nivel directamente
+        document.getElementById('successMessage').classList.remove('hidden');
+    } else if(shotsUsed >= levels[currentLevel].maxShots) {
+        gameActive = false;
+        launchBtn.disabled = true;
+    }
+    
+    drawScene(levels[currentLevel]);
+    drawTrajectory();
+}
+// Agregar esto junto con los otros event listeners
+document.getElementById('continueBtn').addEventListener('click', function() {
+    document.getElementById('successMessage').classList.add('hidden');
+    nextLevel();
+});
+
     </script>
 
     <script>
