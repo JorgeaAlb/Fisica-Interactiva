@@ -502,7 +502,7 @@
 <body>
     <header>
         <div class="header-container">
-            <a href="home.html" class="logo">
+            <a href="../home.html" class="logo">
                 <i class="fas fa-atom"></i>
                 <span>Física Interactiva</span>
             </a>
@@ -511,9 +511,9 @@
             </button>
             <nav>
                 <ul>
-                    <li><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
-                    <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                    <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
+                    <li><a href="../games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="../calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
                 </ul>
             </nav>
         </div>
@@ -540,7 +540,7 @@
             </div>
         </div>
 
-        <a href="games.html" class="back-btn">
+        <a href="../games.html" class="back-btn">
             <i class="fas fa-arrow-left"></i> Volver a todos los juegos
         </a>
         
@@ -1095,6 +1095,21 @@
     initGame();
 });
 
+</script>
+<script>
+    // Menú hamburguesa
+    document.querySelector('.hamburger-btn').addEventListener('click', function() {
+        document.querySelector('nav ul').classList.toggle('active');
+    });
+    
+    // Cerrar menú al hacer clic en enlaces (solo en móvil)
+    document.querySelectorAll('nav ul li a').forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                document.querySelector('nav ul').classList.remove('active');
+            }
+        });
+    });
 </script>
 </body>
 </html>
