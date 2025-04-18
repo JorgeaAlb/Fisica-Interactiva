@@ -484,6 +484,19 @@
             font-size: 18px;
         }
     } }
+    .computadora-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;  /* Se muestra de forma modal */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Por encima de todo el contenido */
+    backdrop-filter: blur(3px);
+}
     </style>
 </head>
 <body>
@@ -516,6 +529,16 @@
                 <button id="continue-mobile" class="btn btn-continue">Entendido, jugar igual</button>
             </div>
         </div>
+        
+        <!-- Mensaje para computadoras -->
+        <div id="computadora-warning" class="computadora-warning">
+            <div class="warning-content">
+                <div class="warning-icon">💡</div>
+                <h3>Usa las flechas del teclado para jugar</h3>
+                <p>Utiliza las flechas para controlar la gravedad y guiar la bola.</p>
+                <button id="continue-game" class="btn btn-continue">Entendido, comenzar</button>
+            </div>
+        </div>
 
         <a href="games.html" class="back-btn">
             <i class="fas fa-arrow-left"></i> Volver a todos los juegos
@@ -523,7 +546,7 @@
         
         <div class="game-container">
             <div class="game-header">
-                <h1><i class="fas fa-magnet"></i> Laberinto Gravitatorio</h1>
+                <h1></i> Laberinto Gravitatorio</h1>
                 <p>Controla la gravedad para guiar la bola hasta la meta</p>
             </div>
 
@@ -590,7 +613,8 @@
     </footer>  
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        
+    document.addEventListener('DOMContentLoaded', function() {
     // Elementos del DOM
     const canvas = document.getElementById('gravityMaze');
     const ctx = canvas.getContext('2d');
@@ -610,6 +634,29 @@
     const continueBtn = document.getElementById('continue-mobile');
     const hamburgerBtn = document.querySelector('.hamburger-btn');
     const nav = document.querySelector('nav');
+    const computadoraWarning = document.getElementById('computadora-warning');
+    const continueGameBtn = document.getElementById('continue-game');
+
+    // Mostrar alerta de computadora solo en pantallas grandes
+    if (window.innerWidth > 768) {
+        computadoraWarning.style.display = 'flex';
+    } else {
+        computadoraWarning.style.display = 'none';
+    }
+    
+    // Mostrar alerta de móvil solo en dispositivos pequeños
+    if (window.innerWidth <= 768) {
+        mobileWarning.style.display = 'flex';
+    } else {
+        mobileWarning.style.display = 'none';
+    }
+
+    // Ocultar alerta de computadora al hacer clic
+    continueGameBtn.addEventListener('click', function() {
+        computadoraWarning.style.display = 'none';
+    });
+
+    
 
     // Variables del juego
     let gravity = { x: 0, y: 0.5 };
@@ -1047,6 +1094,7 @@
     // Iniciar el juego
     initGame();
 });
+
 </script>
 </body>
 </html>
