@@ -164,12 +164,18 @@
             background-color: #f0f8ff;
         }
 
-        /* Controles de gravedad */
+        /* Controles de gravedad - Nuevo diseño tipo pad */
         .gravity-controls {
             display: flex;
-            justify-content: center;
-            gap: 15px;
+            flex-direction: column;
+            align-items: center;
             margin: 20px 0;
+        }
+
+        .control-row {
+            display: flex;
+            justify-content: center;
+            margin: 5px 0;
         }
 
         .gravity-btn {
@@ -186,6 +192,7 @@
             justify-content: center;
             transition: all 0.3s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 10px;
         }
 
         .gravity-btn:hover {
@@ -197,31 +204,44 @@
             transform: scale(0.95);
         }
 
+        .gravity-btn.zero {
+            background-color: var(--color-dark);
+            margin: 10px 0;
+        }
+
         /* Información del juego */
         .game-info {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: rgba(52, 152, 219, 0.1);
-            border-radius: 8px;
-        }
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: 8px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
 
-        .game-stat {
-            text-align: center;
-        }
+    .game-stat {
+        text-align: center;
+        min-width: 80px;
+        padding: 10px;
+        flex: 1;
+    }
 
-        .game-stat h3 {
-            color: var(--color-dark);
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
+    .game-stat h3 {
+        color: var(--color-dark);
+        margin-bottom: 5px;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-        .game-stat p {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--color-primary);
-        }
+    .game-stat p {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--color-primary);
+        margin: 0;
+    }
 
         /* Niveles */
         .level-selector {
@@ -353,106 +373,113 @@
 
         /* Estilos responsivos */
         @media (max-width: 768px) {
-    /* Menú hamburguesa */
-    .hamburger-btn {
-        display: block;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        margin-left: auto;
-        padding: 0.5rem;
-    }
+            /* Menú hamburguesa */
+            .hamburger-btn {
+                display: block;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                margin-left: auto;
+                padding: 0.5rem;
+            }
 
-    /* Oculta el menú normal en móvil */
-    nav ul {
-        display: none;
-        list-style: none;
-    }
+            /* Oculta el menú normal en móvil */
+            nav ul {
+                display: none;
+                list-style: none;
+            }
 
-    /* Menú desplegable activo */
-    nav ul.active {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 70px;
-        right: 20px;
-        background-color: var(--color-dark); /* Cambiado a color oscuro sólido */
-        border-radius: 5px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        width: 200px;
-        padding: 1rem 0;
-        z-index: 1000;
-    }
+            /* Menú desplegable activo */
+            nav ul.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                right: 20px;
+                background-color: var(--color-dark); /* Cambiado a color oscuro sólido */
+                border-radius: 5px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                width: 200px;
+                padding: 1rem 0;
+                z-index: 1000;
+            }
 
-    nav ul.active li {
-        padding: 0.5rem 1.5rem;
-        text-align: left;
-        margin: 0; /* Elimina el margen izquierdo que tenía antes */
-    }
+            nav ul.active li {
+                padding: 0.5rem 1.5rem;
+                text-align: left;
+                margin: 0; /* Elimina el margen izquierdo que tenía antes */
+            }
 
-    nav ul.active li:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
+            nav ul.active li:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
 
-    nav ul.active li a {
-        color: white;
-        width: 100%;
-    }
+            nav ul.active li a {
+                color: white;
+                width: 100%;
+            }
 
 
-        .container {
+            .container {
+                padding: 10px;
+            }
+
+            .game-container {
+                padding: 15px;
+            }
+
+            .game-header h1 {
+                font-size: 24px;
+            }
+
+            .game-canvas-container {
+                height: 300px;
+            }
+
+            .gravity-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                margin: 0 5px;
+            }
+
+            @media (max-width: 768px) {
+        .game-info {
+            flex-direction: row; /* Mantenemos en fila pero con wrap */
             padding: 10px;
-        }
-
-        .game-container {
-            padding: 15px;
-        }
-
-        .game-header h1 {
-            font-size: 24px;
-        }
-
-        .game-canvas-container {
-            height: 300px;
-        }
-
-        .gravity-controls {
             gap: 10px;
         }
 
-        .gravity-btn {
-            width: 50px;
-            height: 50px;
+        .game-stat {
+            min-width: 30%;
+            padding: 8px 5px;
+            flex: none;
+        }
+
+        .game-stat h3 {
+            font-size: 14px;
+        }
+
+        .game-stat p {
             font-size: 20px;
-        }
-
-        .game-info {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .mobile-warning {
-            display: flex;
         }
     }
 
     @media (max-width: 480px) {
-        .game-canvas-container {
-            height: 250px;
+        .game-stat {
+            min-width: 28%;
         }
 
-        .gravity-controls {
-            flex-wrap: wrap;
+        .game-stat h3 {
+            font-size: 12px;
         }
 
-        .gravity-btn {
-            width: 45px;
-            height: 45px;
+        .game-stat p {
             font-size: 18px;
         }
-    }
+    } }
     </style>
 </head>
 <body>
@@ -507,22 +534,29 @@
                 <canvas id="gravityMaze"></canvas>
             </div>
 
+            <!-- Nuevo diseño de controles tipo pad -->
             <div class="gravity-controls">
-                <button class="gravity-btn" id="gravityUp" title="Gravedad arriba">
-                    <i class="fas fa-arrow-up"></i>
-                </button>
-                <button class="gravity-btn" id="gravityLeft" title="Gravedad izquierda">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <button class="gravity-btn" id="gravityDown" title="Gravedad abajo">
-                    <i class="fas fa-arrow-down"></i>
-                </button>
-                <button class="gravity-btn" id="gravityRight" title="Gravedad derecha">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-                <button class="gravity-btn" id="gravityZero" title="Sin gravedad" style="background-color: var(--color-dark);">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="control-row">
+                    <button class="gravity-btn" id="gravityUp" title="Gravedad arriba">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </div>
+                <div class="control-row">
+                    <button class="gravity-btn" id="gravityLeft" title="Gravedad izquierda">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button class="gravity-btn zero" id="gravityZero" title="Sin gravedad">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="gravity-btn" id="gravityRight" title="Gravedad derecha">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="control-row">
+                    <button class="gravity-btn" id="gravityDown" title="Gravedad abajo">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="game-info">
