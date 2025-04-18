@@ -727,24 +727,24 @@
     }
 
     // Configurar el canvas
-        function setupCanvas() {
-        const container = document.querySelector('.game-canvas-container');
-        const containerWidth = container.clientWidth;
-        
-        // Establecemos el ancho del canvas igual al contenedor y el alto en base a la relación de celdas
-        canvas.width = containerWidth;
-        canvas.height = containerWidth * (mazeHeight / mazeWidth);
-        
-        // Calcular tamaño de celda con márgenes
-        cellSize = Math.min(
-            (canvas.width - 20) / mazeWidth, 
-            (canvas.height - 20) / mazeHeight
-        );
-        
-        // Calcular offsets para centrar el laberinto
-        offsetX = (canvas.width - mazeWidth * cellSize) / 2;
-        offsetY = (canvas.height - mazeHeight * cellSize) / 2;
-    }
+    function setupCanvas() {
+    const container = document.querySelector('.game-canvas-container');
+    const containerWidth = container.clientWidth;
+    
+    // El canvas toma el ancho del contenedor y la altura se calcula según la proporción del laberinto
+    canvas.width = containerWidth;
+    canvas.height = containerWidth * (mazeHeight / mazeWidth);
+    
+    // Calcular tamaño de celda sin restar un margen fijo para aprovechar más el espacio
+    cellSize = Math.min(
+        (canvas.width) / mazeWidth, 
+        (canvas.height) / mazeHeight
+    );
+    
+    // Calcular offsets para centrar el laberinto
+    offsetX = (canvas.width - mazeWidth * cellSize) / 2;
+    offsetY = (canvas.height - mazeHeight * cellSize) / 2;
+}
 
     // Cargar nivel
     function loadLevel(levelNum) {
