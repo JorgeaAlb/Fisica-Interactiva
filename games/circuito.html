@@ -659,7 +659,7 @@
                 <button class="level-btn active" data-level="1">Nivel 1</button>
                 <button class="level-btn" data-level="2">Nivel 2</button>
                 <button class="level-btn" data-level="3">Nivel 3</button>
-                <button class="level-btn" data-level="4">PROXIMAMENTE</button>
+                <button class="level-btn" data-level="4">Nivel 4</button>
             </div>
             
             <div class="game-stats">
@@ -751,6 +751,7 @@
     let placedComponents = [];
     let connections = [];
     let isConnecting = false;
+    let draggedComponent = null;
     
     // Niveles del juego
     const levels = {
@@ -787,12 +788,16 @@
         },
         4: {
             title: "Circuito con LED",
-            instructions: "Protege un LED con una resistencia adecuada. El LED solo debe encenderse con la resistencia correcta.",
+            instructions: "Protege un LED con una resistencia adecuada (entre 100Ω y 150Ω). El LED solo debe encenderse con la resistencia correcta y la polaridad adecuada.",
             requiredComponents: ["battery", "led", "resistor"],
             requiredConnections: 2,
             voltage: 9,
-            resistance: 120,
-            points: 40
+            resistance: {
+                min: 100,
+                max: 150
+            },
+            points: 40,
+            ledPolarity: true // Indica que la polaridad es importante para este nivel
         }
     };
     
@@ -848,9 +853,19 @@
         instructionsDisplay.textContent = levelData.instructions;
         
         // Actualizar valores esperados
-        voltageDisplay.textContent = `${levelData.voltage} V`;
-        resistanceDisplay.textContent = `${levelData.resistance} Ω`;
-        currentDisplay.textContent = `${(levelData.voltage / levelData.resistance).toFixed(2)} A`;
+        if (level === 4) {
+            voltageDisplay.textContent = `${levelData.voltage} V`;
+            resistanceDisplay.textContent = `100-150 Ω`;
+            currentDisplay.textContent = `${(levelData.voltage / 120).toFixed(2)} A`; // Valor medio para mostrar
+        } else if (typeof levelData.resistance === 'object') {
+            voltageDisplay.textContent = `${levelData.voltage} V`;
+            resistanceDisplay.textContent = `${levelData.resistance.expected} Ω`;
+            currentDisplay.textContent = `${(levelData.voltage / levelData.resistance.expected).toFixed(2)} A`;
+        } else {
+            voltageDisplay.textContent = `${levelData.voltage} V`;
+            resistanceDisplay.textContent = `${levelData.resistance} Ω`;
+            currentDisplay.textContent = `${(levelData.voltage / levelData.resistance).toFixed(2)} A`;
+        }
     }
     
     // Reiniciar circuito
@@ -954,6 +969,7 @@
                 iconClass = 'fas fa-circle led-icon';
                 label = 'LED';
                 component.dataset.resistance = data.resistance;
+                component.dataset.polarity = 'correct'; // Por defecto asumimos polaridad correcta
                 break;
         }
         
@@ -1003,7 +1019,7 @@
             // Hacer los puntos conectables
             makeConnectable(leftPoint, component);
             makeConnectable(rightPoint, component);
-        } else if (type === 'bulb' || type === 'led') {
+        } else if (type === 'bulb') {
             // Dos puntos de conexión (abajo)
             const leftPoint = document.createElement('div');
             leftPoint.className = 'connection-point';
@@ -1053,6 +1069,27 @@
                     soundPowerOff.play();
                 }
             });
+                } else if (type === 'led') {
+            // Dos puntos de conexión abajo (como el foco)
+            const leftPoint = document.createElement('div');
+            leftPoint.className = 'connection-point anode';
+            leftPoint.style.left = `${width/3 - 6}px`;
+            leftPoint.style.bottom = '0px';
+            leftPoint.title = 'Ánodo (positivo)';
+            component.appendChild(leftPoint);
+            
+            const rightPoint = document.createElement('div');
+            rightPoint.className = 'connection-point cathode';
+            rightPoint.style.right = `${width/3 - 6}px`;
+            rightPoint.style.bottom = '0px';
+            rightPoint.title = 'Cátodo (negativo)';
+            component.appendChild(rightPoint);
+            
+            makeConnectable(leftPoint, component);
+            makeConnectable(rightPoint, component);
+            
+            // Marcar polaridad en el LED
+            component.dataset.polarity = 'correct';
         }
     }
     
@@ -1201,6 +1238,33 @@
                 );
                 
                 if (endPoint) {
+                    // Verificar polaridad para LED (solo en nivel 4)
+                    if (currentLevel === 4) {
+                        const startParent = point.parentElement;
+                        const endParent = endPoint.parentElement;
+                        
+                        // Verificar si estamos conectando un LED
+                        if (startParent.dataset.type === 'led' || endParent.dataset.type === 'led') {
+                            const led = startParent.dataset.type === 'led' ? startParent : endParent;
+                            const otherComponent = startParent.dataset.type === 'led' ? endParent : startParent;
+                            const ledPoint = startParent.dataset.type === 'led' ? point : endPoint;
+                            const otherPoint = startParent.dataset.type === 'led' ? endPoint : point;
+                            
+                            // Verificar polaridad
+                            if (otherComponent.dataset.type === 'battery') {
+                                if ((ledPoint.classList.contains('anode') && otherPoint.style.left === '0px') || 
+                                    (ledPoint.classList.contains('cathode') && otherPoint.style.right === '0px')) {
+                                    // Polaridad incorrecta
+                                    led.dataset.polarity = 'incorrect';
+                                    showFeedback("¡Polaridad incorrecta en el LED! El ánodo debe conectarse al positivo de la batería.", "error");
+                                } else {
+                                    // Polaridad correcta
+                                    led.dataset.polarity = 'correct';
+                                }
+                            }
+                        }
+                    }
+                    
                     // Crear conexión permanente
                     createConnection(point, endPoint);
                     soundPowerOn.play();
@@ -1263,6 +1327,15 @@
                     connections.splice(index, 1);
                     wire.remove();
                     soundPowerOff.play();
+                    
+                    // Verificar si estamos desconectando un LED para resetear su polaridad
+                    const startParent = connections[index].start.parentElement;
+                    const endParent = connections[index].end.parentElement;
+                    
+                    if (startParent.dataset.type === 'led' || endParent.dataset.type === 'led') {
+                        const led = startParent.dataset.type === 'led' ? startParent : endParent;
+                        led.dataset.polarity = 'correct';
+                    }
                 }
             }
         });
@@ -1338,32 +1411,48 @@
                 }
             });
             
-            const current = totalVoltage / totalResistance;
+            const current = totalVoltage / (totalResistance || 1); // Evitar división por cero
             
-            // Verificar valores esperados para el nivel
+            // Verificación especial para el nivel 4 (LED)
+            if (currentLevel === 4) {
+                const led = placedComponents.find(c => c.dataset.type === 'led');
+                const resistor = placedComponents.find(c => c.dataset.type === 'resistor');
+                
+                // Verificar polaridad del LED
+                if (led && led.dataset.polarity === 'incorrect') {
+                    isValid = false;
+                    message = "¡Polaridad incorrecta en el LED! El ánodo debe conectarse al positivo de la batería.";
+                }
+                // Verificar resistencia adecuada para el LED
+                else if (resistor) {
+                    const resistorValue = parseFloat(resistor.dataset.resistance);
+                    if (resistorValue < levelData.resistance.min || resistorValue > levelData.resistance.max) {
+                        isValid = false;
+                        message = `La resistencia (${resistorValue}Ω) no está en el rango adecuado (${levelData.resistance.min}-${levelData.resistance.max}Ω) para proteger el LED.`;
+                    }
+                }
+            }
+            // Verificar valores esperados para otros niveles
+            else if (typeof levelData.resistance === 'object' && levelData.resistance.type === 'parallel') {
+                // Verificación para circuito en paralelo (nivel 3)
+                const expectedResistance = levelData.resistance.expected;
+                if (Math.abs(totalResistance - expectedResistance) > 5) {
+                    isValid = false;
+                    message = `La resistencia total del circuito (${totalResistance}Ω) no es la esperada para un circuito en paralelo (${expectedResistance}Ω).`;
+                }
+            } else if (currentLevel !== 4 && Math.abs(totalResistance - levelData.resistance) > 5) {
+                isValid = false;
+                message = `La resistencia del circuito (${totalResistance}Ω) no es la adecuada (${levelData.resistance}Ω).`;
+            }
+            
+            // Verificar voltaje
             if (Math.abs(totalVoltage - levelData.voltage) > 0.1) {
                 isValid = false;
                 message = `El voltaje del circuito (${totalVoltage}V) no coincide con el requerido (${levelData.voltage}V).`;
-            } else if (Math.abs(totalResistance - levelData.resistance) > 5) {
-                isValid = false;
-                message = `La resistencia del circuito (${totalResistance}Ω) no es la adecuada (${levelData.resistance}Ω).`;
-            } else {
-                // Encender los componentes que correspondan
-                placedComponents.forEach(component => {
-                    if (component.dataset.type === 'bulb' || component.dataset.type === 'led') {
-                        component.classList.add('on');
-                        const icon = component.querySelector('i');
-                        
-                        if (component.dataset.type === 'bulb') {
-                            icon.style.color = '#ffeb3b';
-                            icon.style.textShadow = '0 0 10px #ffeb3b, 0 0 20px #ffeb3b, 0 0 30px #ffeb3b';
-                        } else {
-                            icon.style.color = '#00ff00';
-                            icon.style.textShadow = '0 0 5px #00ff00, 0 0 10px #00ff00';
-                        }
-                    }
-                });
-                
+            }
+            
+            // Si todo está bien hasta ahora, encender los componentes
+            if (isValid) {
                 // Verificar interruptores
                 const switches = placedComponents.filter(c => c.dataset.type === 'switch');
                 const switchedOff = switches.some(sw => sw.dataset.state === 'off');
@@ -1382,6 +1471,22 @@
                         }
                     });
                 } else {
+                    // Encender los componentes que correspondan
+                    placedComponents.forEach(component => {
+                        if (component.dataset.type === 'bulb' || component.dataset.type === 'led') {
+                            component.classList.add('on');
+                            const icon = component.querySelector('i');
+                            
+                            if (component.dataset.type === 'bulb') {
+                                icon.style.color = '#ffeb3b';
+                                icon.style.textShadow = '0 0 10px #ffeb3b, 0 0 20px #ffeb3b, 0 0 30px #ffeb3b';
+                            } else {
+                                icon.style.color = '#00ff00';
+                                icon.style.textShadow = '0 0 5px #00ff00, 0 0 10px #00ff00';
+                            }
+                        }
+                    });
+                    
                     // Circuito completado correctamente
                     score += levelData.points;
                     scoreDisplay.textContent = score;
@@ -1493,6 +1598,20 @@
     
     // Cargar el primer nivel al iniciar
     changeLevel(1);
+});
+
+// Menú hamburguesa
+document.querySelector('.hamburger-btn').addEventListener('click', function() {
+    document.querySelector('nav').classList.toggle('active');
+});
+
+// Cerrar menú al hacer clic en enlaces (solo en móvil)
+document.querySelectorAll('nav ul li a').forEach(item => {
+    item.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+            document.querySelector('nav').classList.remove('active');
+        }
+    });
 });
     </script>
     <script>
