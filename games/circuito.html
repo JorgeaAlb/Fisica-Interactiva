@@ -738,7 +738,7 @@
     </footer>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
     // Ocultar advertencia móvil si el usuario continúa
     document.querySelector('.btn-continue').addEventListener('click', function() {
         document.querySelector('.mobile-warning').style.display = 'none';
@@ -1056,10 +1056,34 @@
     function makeDraggable(element) {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         
-        element.onmousedown = dragMouseDown;
+        // Eventos para desktop
+        element.addEventListener('mousedown', dragMouseDown);
+        
+        // Eventos para móvil
+        element.addEventListener('touchstart', handleTouchStart, {passive: false});
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            dragMouseDown(touch);
+            
+            // Mover el elemento durante el touch
+            document.addEventListener('touchmove', handleTouchMove, {passive: false});
+            document.addEventListener('touchend', handleTouchEnd, {once: true});
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            elementDrag(touch);
+        }
+        
+        function handleTouchEnd() {
+            document.removeEventListener('touchmove', handleTouchMove);
+            closeDragElement();
+        }
         
         function dragMouseDown(e) {
-            e = e || window.event;
             e.preventDefault();
             
             // Solo arrastrar si no estamos conectando
@@ -1074,7 +1098,6 @@
         }
         
         function elementDrag(e) {
-            e = e || window.event;
             e.preventDefault();
             
             // Calcular la nueva posición
@@ -1098,9 +1121,18 @@
         }
     }
     
-    // Hacer un punto de conexión conectable
+    // Función mejorada para conexiones (funciona en móvil y desktop)
     function makeConnectable(point, parentComponent) {
+        // Eventos para desktop
         point.addEventListener('mousedown', startConnection);
+        
+        // Eventos para móvil
+        point.addEventListener('touchstart', handleTouchStart, {passive: false});
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            startConnection(e.touches[0]);
+        }
         
         function startConnection(e) {
             e.stopPropagation();
@@ -1121,28 +1153,43 @@
             tempWire.style.top = `${startY}px`;
             circuitBoard.appendChild(tempWire);
             
-            // Mover el cable con el ratón
-            document.onmousemove = function(e) {
-                const endX = e.clientX - boardRect.left;
-                const endY = e.clientY - boardRect.top;
+            // Función para mover el cable
+            function moveWire(clientX, clientY) {
+                const endX = clientX - boardRect.left;
+                const endY = clientY - boardRect.top;
                 
                 const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
                 const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
                 
                 tempWire.style.width = `${length}px`;
                 tempWire.style.transform = `rotate(${angle}deg)`;
+            }
+            
+            // Eventos para desktop
+            document.onmousemove = function(e) {
+                moveWire(e.clientX, e.clientY);
             };
             
-            // Finalizar la conexión al soltar el ratón
-            document.onmouseup = function(e) {
+            // Eventos para móvil
+            document.addEventListener('touchmove', handleTouchMove, {passive: false});
+            
+            function handleTouchMove(e) {
+                e.preventDefault();
+                moveWire(e.touches[0].clientX, e.touches[0].clientY);
+            }
+            
+            // Función para finalizar la conexión
+            function endConnection(clientX, clientY) {
+                // Eliminar eventos
                 document.onmousemove = null;
                 document.onmouseup = null;
+                document.removeEventListener('touchmove', handleTouchMove);
                 
                 // Eliminar el cable temporal
                 tempWire.remove();
                 
                 // Verificar si se soltó sobre otro punto de conexión
-                const endElements = document.elementsFromPoint(e.clientX, e.clientY);
+                const endElements = document.elementsFromPoint(clientX, clientY);
                 const endPoint = endElements.find(el => 
                     el.classList.contains('connection-point') && 
                     el !== point &&
@@ -1156,7 +1203,19 @@
                 }
                 
                 isConnecting = false;
+            }
+            
+            // Eventos para finalizar (desktop)
+            document.onmouseup = function(e) {
+                endConnection(e.clientX, e.clientY);
             };
+            
+            // Eventos para finalizar (móvil)
+            document.addEventListener('touchend', handleTouchFinal, {once: true});
+            
+            function handleTouchFinal(e) {
+                endConnection(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+            }
         }
     }
     
@@ -1348,6 +1407,7 @@
     
     // Event listeners para los componentes arrastrables
     document.querySelectorAll('.component').forEach(component => {
+        // Eventos para desktop
         component.addEventListener('dragstart', function(e) {
             draggedComponent = this;
             e.dataTransfer.setData('text/plain', this.dataset.type);
@@ -1360,6 +1420,41 @@
             this.style.display = 'flex';
             draggedComponent = null;
         });
+        
+        // Eventos para móvil
+        component.addEventListener('touchstart', handleTouchStart, {passive: false});
+        component.addEventListener('touchend', handleTouchEnd, {passive: false});
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            draggedComponent = this;
+            this.style.opacity = '0.7';
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            if (!draggedComponent) return;
+            
+            const type = draggedComponent.dataset.type;
+            const rect = circuitBoard.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const x = touch.clientX - rect.left - 40;
+            const y = touch.clientY - rect.top - 40;
+            
+            // Crear una copia del componente en el área de trabajo
+            createPlacedComponent(
+                type, 
+                x, 
+                y, 
+                {
+                    voltage: draggedComponent.dataset.voltage || 0,
+                    resistance: draggedComponent.dataset.resistance || 0
+                }
+            );
+            
+            draggedComponent.style.opacity = '1';
+            draggedComponent = null;
+        }
     });
     
     // Event listener para soltar componentes en el área de trabajo
@@ -1411,5 +1506,20 @@
             });
         });
     </script>
+    <script>
+        // Menú hamburguesa
+        document.querySelector('.hamburger-btn').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('active');
+        });
+        
+        // Cerrar menú al hacer clic en enlaces (solo en móvil)
+        document.querySelectorAll('nav ul li a').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    document.querySelector('nav ul').classList.remove('active');
+                }
+            });
+        });
+    </script> 
 </body>
 </html>
