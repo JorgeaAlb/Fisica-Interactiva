@@ -393,8 +393,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Control de volumen */
+        .volume-control {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin: 1rem auto;
+            justify-content: center;
+        }
         
-        
+        .volume-control i {
+            color: var(--color-primary);
+        }
+
         /* Media queries responsive */
         @media (max-width: 768px) {
             .mobile-warning {
@@ -616,6 +627,13 @@
         
         <div class="game-container">
             <h1>Balanza de Piso</h1>
+            
+            <!-- Control de volumen -->
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+            </div>
+            
             <div class="level-selector">
                 <button class="level-btn active" data-level="1">Nivel 1</button>
                 <button class="level-btn" data-level="2">Nivel 2</button>
@@ -667,6 +685,38 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Sonidos del juego
+            const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+            const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+            const soundDrop = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3');
+            const soundLevelUp = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+            
+            // Configurar precarga de sonidos
+            [soundSuccess, soundError, soundDrop, soundLevelUp].forEach(sound => {
+                sound.preload = 'auto';
+                sound.volume = 0.7;
+            });
+            
+            // Función para reproducir sonidos con manejo de errores
+            function playSound(sound) {
+                try {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                } catch (e) {
+                    console.log("Error con sonido:", e);
+                }
+            }
+            
+            // Control de volumen
+            const volumeSlider = document.getElementById('volumeSlider');
+            volumeSlider.addEventListener('input', function() {
+                const volume = parseFloat(this.value);
+                soundSuccess.volume = volume;
+                soundError.volume = volume;
+                soundDrop.volume = volume;
+                soundLevelUp.volume = volume;
+            });
+            
             // Elementos del juego
             const balanceBeam = document.getElementById('balanceBeam');
             const leftTotalDisplay = document.getElementById('leftTotal');
@@ -696,35 +746,35 @@
                     points: 10
                 },
                 2: {
-                    instruction: "Equilibra la balanza con pesos más variados",
+                    // instruction: "Equilibra la balanza con pesos más variados",
                     fixedWeights: [8, 5, 3],
                     movableWeights: [2, 3, 4, 5, 6, 7],
                     maxAttempts: 4,
                     points: 20
                 },
                 3: {
-                    instruction: "Nivel avanzado: usa pesos negativos para equilibrar",
+                    // instruction: "Nivel avanzado: usa pesos negativos para equilibrar",
                     fixedWeights: [12, 7, -3],
                     movableWeights: [-2, -1, 1, 2, 3, 4, 5, 6],
                     maxAttempts: 3,
                     points: 30
                 },
                 4: {
-                    instruction: "Desafío de múltiples pesos: encuentra la combinación perfecta",
+                    // instruction: "Desafío de múltiples pesos: encuentra la combinación perfecta",
                     fixedWeights: [15, -2, 7, 4],
                     movableWeights: [3, 4, 5, 6, 7, 8, -1, -3],
                     maxAttempts: 4,
                     points: 40
                 },
                 5: {
-                    instruction: "Nivel experto: pesos grandes y pequeños",
+                    // instruction: "Nivel experto: pesos grandes y pequeños",
                     fixedWeights: [25, -5, 12, -8],
                     movableWeights: [2, 3, 5, 7, 10, -2, -4, -6],
                     maxAttempts: 3,
                     points: 50
                 },
                 6: {
-                    instruction: "Nivel maestro: equilibrio preciso con muchos elementos",
+                    // instruction: "Nivel maestro: equilibrio preciso con muchos elementos",
                     fixedWeights: [18, -4, 9, -3, 7, 5],
                     movableWeights: [5, 3, 7, 3, 2, 1, 9, 5, 1, 8, -1, -2, -3, -4],
                     maxAttempts: 5,
@@ -769,6 +819,8 @@
             // Continuar en móvil
             continueBtn.addEventListener('click', function() {
                 mobileWarning.style.display = 'none';
+                // Activar sonidos con la primera interacción del usuario
+                playSound(soundDrop);
             });
             
             // Inicializar el juego
@@ -850,9 +902,11 @@
                 if (leftTotal === rightTotal) {
                     score += level.points;
                     scoreDisplay.textContent = score;
+                    playSound(soundSuccess);
                     showFeedback(`¡Perfectamente equilibrado! +${level.points} puntos`, true);
                     setTimeout(() => {
                         if (currentLevel < Object.keys(levels).length) {
+                            playSound(soundLevelUp);
                             changeLevel(currentLevel + 1);
                         } else {
                             showFeedback(`¡Felicidades! Has completado todos los niveles con ${score} puntos`, true);
@@ -864,6 +918,7 @@
                     
                     if (attempts >= level.maxAttempts) {
                         feedback = `¡Se acabaron los intentos! La solución era ${leftTotal}.`;
+                        playSound(soundError);
                         showFeedback(feedback, false);
                         setTimeout(() => {
                             resetLevel();
@@ -881,6 +936,7 @@
                             feedback = `Sigue intentando. Más peso al lado ${direction}`;
                             showFeedback(feedback, false);
                         }
+                        playSound(soundError);
                     }
                 }
             }
@@ -958,6 +1014,7 @@
                     rightTotal += value;
                     this.appendChild(draggedWeight);
                     updateBalance();
+                    playSound(soundDrop);
                 }
             }
             
@@ -969,6 +1026,7 @@
                     rightTotal -= value;
                     this.appendChild(draggedWeight);
                     updateBalance();
+                    playSound(soundDrop);
                 }
             }
             

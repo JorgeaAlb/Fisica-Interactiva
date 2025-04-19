@@ -127,11 +127,13 @@
         .option.correct {
             background-color: #d4edda;
             border-color: #c3e6cb;
+            animation: pulseCorrect 0.5s;
         }
         
         .option.incorrect {
             background-color: #f8d7da;
             border-color: #f5c6cb;
+            animation: shake 0.5s;
         }
         
         .play-btn {
@@ -146,50 +148,74 @@
         }
         
         .container {
-            flex: 1; /* Permite que el contenido crezca y empuje el footer hacia abajo */
+            flex: 1;
+        }
+
+        /* Animaciones para feedback visual */
+        @keyframes pulseCorrect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Control de volumen */
+        .volume-control {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+        
+        .volume-control i {
+            color: #3498db;
         }
 
         @media (max-width: 768px) {
+            .difficulty-selector {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+                margin: 2rem auto;
+            }
+            
+            .difficulty-btn {
+                padding: 1.2rem 6rem;
+                border: none;
+                border-radius: 50px;
+                font-weight: bold;
+                font-size: 20px;
+                cursor: pointer;
+                transition: all 0.3s;
+                min-width: 150px;
+                text-align: center;
+            }
 
-        .difficulty-selector {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem auto;
-        }
-        
-        .difficulty-btn {
-            padding: 1.2rem 6rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-width: 150px;
-            text-align: center;
-        }
+            .difficulty-btn.easy { 
+                background-color: #2ecc71; 
+                color: white; 
+            }
+            
+            .difficulty-btn.medium { 
+                background-color: #f39c12; 
+                color: white; 
+            }
+            
+            .difficulty-btn.hard { 
+                background-color: #e74c3c; 
+                color: white; 
+            }
 
-        .difficulty-btn.easy { 
-            background-color: #2ecc71; 
-            color: white; 
+            .hidden {
+                display: none;
+            }
         }
-        
-        .difficulty-btn.medium { 
-            background-color: #f39c12; 
-            color: white; 
-        
-        }
-        .difficulty-btn.hard { 
-            background-color: #e74c3c; 
-            color: white; 
-        }
-
-        .hidden {
-            display: none;
-        }
-    }
     </style>
 </head>
 <body>
@@ -237,6 +263,11 @@
                         <!-- Las preguntas aparecerán aquí -->
                     </div>
                     
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+                    </div>
+                    
                     <button id="next-btn" class="play-btn hidden">Siguiente pregunta</button>
                 </div>
             </div>
@@ -244,6 +275,44 @@
     </div>
 
     <script>
+        // Sonidos con precarga y gestión mejorada
+        const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+        const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+        
+        // Configuración óptima de sonidos
+        [soundSuccess, soundError].forEach(sound => {
+            sound.preload = 'auto';
+            sound.volume = 0.7;
+        });
+
+        // Función robusta para reproducir sonidos
+        function playSound(sound) {
+            try {
+                sound.currentTime = 0; // Rebobinar antes de reproducir
+                const playPromise = sound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Reproducción automática prevenida:", error);
+                        // Activar sonidos con interacción del usuario
+                        document.body.addEventListener('click', function handler() {
+                            sound.play();
+                            document.body.removeEventListener('click', handler);
+                        }, { once: true });
+                    });
+                }
+            } catch (e) {
+                console.log("Error con sonido:", e);
+            }
+        }
+
+        // Control de volumen
+        document.getElementById('volumeSlider').addEventListener('input', function() {
+            const volume = parseFloat(this.value);
+            soundSuccess.volume = volume;
+            soundError.volume = volume;
+        });
+
         // Banco de preguntas por dificultad
         const questions = {
             easy: [
@@ -318,21 +387,6 @@
                     answer: 2,
                     explanation: "La energía potencial es la energía asociada con la posición de un objeto en un campo de fuerzas.",
                     category: "Energía"
-                },
-                // Nuevas preguntas agregadas al nivel medio
-                {
-                    question: "¿Cuál es la potencia disipada en una resistencia de 10 Ω cuando pasa una corriente de 2 A?",
-                    options: ["5 W", "20 W", "40 W", "100 W"],
-                    answer: 2,
-                    explanation: "La potencia en una resistencia se calcula como P = I²R. (2 A)² × 10 Ω = 40 W.",
-                    category: "Circuitos eléctricos"
-                },
-                {
-                    question: "¿Qué fenómeno ocurre cuando la frecuencia de una fuerza externa coincide con la frecuencia natural de un sistema?",
-                    options: ["Interferencia", "Difracción", "Resonancia", "Polarización"],
-                    answer: 2,
-                    explanation: "La resonancia ocurre cuando hay coincidencia entre la frecuencia externa y la frecuencia natural del sistema, produciendo amplitudes máximas.",
-                    category: "Ondas"
                 }
             ],
             hard: [
@@ -358,54 +412,18 @@
                     category: "Fluidos"
                 },
                 {
-                    question: "¿Cuál es el valor de la aceleración de la gravedad en la superficie de la Tierra?",
-                    options: ["6.67 m/s²", "9.8 m/s²", "10.2 m/s²", "12.0 m/s²"],
-                    answer: 1,
-                    explanation: "El valor estándar de la aceleración debida a la gravedad en la superficie terrestre es aproximadamente 9.8 m/s².",
-                    category: "Gravedad"
-                },
-                {
                     question: "¿Qué ley establece que la presión aplicada a un fluido encerrado se transmite sin disminución a todas las partes del fluido?",
                     options: ["Ley de Hooke", "Ley de Boyle", "Principio de Pascal", "Principio de Bernoulli"],
                     answer: 2,
                     explanation: "El principio de Pascal establece que la presión aplicada a un fluido confinado se transmite íntegramente en todas direcciones.",
                     category: "Fluidos"
                 },
-                // Nuevas preguntas agregadas al nivel difícil
                 {
                     question: "¿Qué efecto predice que un campo gravitatorio intenso puede curvar la trayectoria de la luz?",
                     options: ["Efecto Doppler", "Efecto fotoeléctrico", "Lente gravitacional", "Radiación de Hawking"],
                     answer: 2,
                     explanation: "La lente gravitacional es un efecto predicho por la relatividad general donde la luz se curva al pasar cerca de un campo gravitatorio intenso.",
                     category: "Relatividad"
-                },
-                {
-                    question: "¿Qué número cuántico describe la forma del orbital atómico?",
-                    options: ["Principal (n)", "Secundario (l)", "Magnético (m)", "Spin (s)"],
-                    answer: 1,
-                    explanation: "El número cuántico secundario o azimutal (l) determina la forma del orbital (s, p, d, f).",
-                    category: "Física cuántica"
-                },
-                {
-                    question: "¿Qué partícula es responsable de mediar la fuerza electromagnética?",
-                    options: ["Gravitón", "Fotón", "Bosón W", "Gluón"],
-                    answer: 1,
-                    explanation: "El fotón es el bosón mediador de la fuerza electromagnética en el modelo estándar de física de partículas.",
-                    category: "Física de partículas"
-                },
-                {
-                    question: "¿Qué principio establece que es imposible conocer simultáneamente con precisión la posición y el momento de una partícula?",
-                    options: ["Principio de exclusión de Pauli", "Principio de incertidumbre de Heisenberg", "Principio de equivalencia", "Principio de superposición"],
-                    answer: 1,
-                    explanation: "El principio de incertidumbre de Heisenberg establece límites fundamentales en la precisión con que pueden medirse ciertos pares de variables físicas.",
-                    category: "Física cuántica"
-                },
-                {
-                    question: "¿Qué tipo de transformación deja invariantes las ecuaciones de Maxwell?",
-                    options: ["Transformación de Galileo", "Transformación de Lorentz", "Transformación de Fourier", "Transformación de Laplace"],
-                    answer: 1,
-                    explanation: "Las transformaciones de Lorentz son las que dejan invariantes las ecuaciones de Maxwell, formando la base de la relatividad especial.",
-                    category: "Electromagnetismo"
                 }
             ]
         };
@@ -429,6 +447,10 @@
         // Event listeners para los botones de dificultad
         document.querySelectorAll('.difficulty-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                // Activar sonidos con la primera interacción del usuario
+                soundSuccess.play().then(() => soundSuccess.pause()).catch(e => console.log(e));
+                soundError.play().then(() => soundError.pause()).catch(e => console.log(e));
+                
                 currentDifficulty = this.dataset.difficulty;
                 currentQuestions = [...questions[currentDifficulty]];
                 shuffleArray(currentQuestions);
@@ -503,8 +525,10 @@
             
             if (selectedIndex !== question.answer) {
                 e.target.classList.add('incorrect');
+                playSound(soundError);
             } else {
                 score++;
+                playSound(soundSuccess);
             }
             
             questionsAnswered++;
@@ -547,6 +571,11 @@
             puzzleContainer.innerHTML = resultHtml;
             nextBtn.classList.add('hidden');
             progressBar.style.width = '100%';
+            
+            // Reproducir sonido de éxito si el puntaje es bueno
+            if (percentage >= 70) {
+                playSound(soundSuccess);
+            }
         }
         
         // Función para obtener un mensaje basado en el resultado
@@ -571,6 +600,9 @@
         
         // Event listener para el botón siguiente
         nextBtn.addEventListener('click', nextQuestion);
+        
+        // Hacer resetGame accesible globalmente
+        window.resetGame = resetGame;
     </script>
     
     <script>
