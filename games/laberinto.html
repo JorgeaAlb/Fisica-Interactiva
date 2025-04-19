@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laberinto Gravitatorio | Física Interactiva</title>
+    <title>Laberinto Gravitatorio</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -444,6 +444,19 @@
     z-index: 2000; /* Por encima de todo el contenido */
     backdrop-filter: blur(3px);
 }
+
+/* Control de volumen */
+.volume-control {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+.volume-control i {
+    color: #3498db;
+}
     </style>
 </head>
 <body>
@@ -535,6 +548,12 @@
                 </div>
             </div>
 
+            <!-- Control de volumen -->
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+            </div>
+
             <div class="game-info">
                 <div class="game-stat">
                     <h3>Tiempo</h3>
@@ -561,6 +580,37 @@
     </footer>  
 
     <script>
+    // Precargar sonidos
+    const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+    const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+    const soundMove = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+    
+    // Configurar sonidos
+    [soundSuccess, soundError, soundMove].forEach(sound => {
+        sound.preload = 'auto';
+        sound.volume = 0.7;
+    });
+
+    // Función para reproducir sonidos
+    function playSound(sound) {
+        try {
+            sound.currentTime = 0; // Rebobinar antes de reproducir
+            const playPromise = sound.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Reproducción automática prevenida:", error);
+                    // Activar sonidos con interacción del usuario
+                    document.body.addEventListener('click', function handler() {
+                        sound.play();
+                        document.body.removeEventListener('click', handler);
+                    }, { once: true });
+                });
+            }
+        } catch (e) {
+            console.log("Error con sonido:", e);
+        }
+    }
         
     document.addEventListener('DOMContentLoaded', function() {
     // Elementos del DOM
@@ -584,6 +634,15 @@
     const nav = document.querySelector('nav');
     const computadoraWarning = document.getElementById('computadora-warning');
     const continueGameBtn = document.getElementById('continue-game');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    // Control de volumen
+    volumeSlider.addEventListener('input', function() {
+        const volume = parseFloat(this.value);
+        soundSuccess.volume = volume;
+        soundError.volume = volume;
+        soundMove.volume = volume;
+    });
 
     // Mostrar alerta de computadora solo en pantallas grandes
     if (window.innerWidth > 768) {
@@ -602,6 +661,10 @@
     // Ocultar alerta de computadora al hacer clic
     continueGameBtn.addEventListener('click', function() {
         computadoraWarning.style.display = 'none';
+        // Activar sonidos con la primera interacción del usuario
+        soundSuccess.play().then(() => soundSuccess.pause()).catch(e => console.log(e));
+        soundError.play().then(() => soundError.pause()).catch(e => console.log(e));
+        soundMove.play().then(() => soundMove.pause()).catch(e => console.log(e));
     });
 
     
@@ -813,12 +876,14 @@
             ball.x = newX;
         } else {
             ball.velocity.x *= -0.5; // Rebote
+            playSound(); // Sonido de colisión
         }
         
         if (!checkWallCollision(ball.x, newY)) {
             ball.y = newY;
         } else {
             ball.velocity.y *= -0.5; // Rebote
+            playSound(); // Sonido de colisión
         }
         
         // Verificar si llegó a la meta
@@ -847,6 +912,7 @@
         );
         
         if (distance < 15) {
+            playSound(soundSuccess); // Sonido de éxito
             showFeedback(`¡Nivel ${currentLevel} completado!`, 'success');
             gameRunning = false;
             
@@ -944,32 +1010,53 @@
             switch(e.key) {
                 case 'ArrowUp':
                     setGravity(0, -levels[currentLevel - 1].gravity);
+                    playSound(soundMove); // Sonido de movimiento
                     break;
                 case 'ArrowDown':
                     setGravity(0, levels[currentLevel - 1].gravity);
+                    playSound(soundMove); // Sonido de movimiento
                     break;
                 case 'ArrowLeft':
                     setGravity(-levels[currentLevel - 1].gravity, 0);
+                    playSound(soundMove); // Sonido de movimiento
                     break;
                 case 'ArrowRight':
                     setGravity(levels[currentLevel - 1].gravity, 0);
+                    playSound(soundMove); // Sonido de movimiento
                     break;
                 case ' ':
                     setGravity(0, 0);
+                    playSound(soundMove); // Sonido de movimiento
                     break;
             }
         });
         
         // Botones de gravedad
-        gravityBtns.up.addEventListener('click', () => setGravity(0, -levels[currentLevel - 1].gravity));
-        gravityBtns.down.addEventListener('click', () => setGravity(0, levels[currentLevel - 1].gravity));
-        gravityBtns.left.addEventListener('click', () => setGravity(-levels[currentLevel - 1].gravity, 0));
-        gravityBtns.right.addEventListener('click', () => setGravity(levels[currentLevel - 1].gravity, 0));
-        gravityBtns.zero.addEventListener('click', () => setGravity(0, 0));
+        gravityBtns.up.addEventListener('click', () => {
+            setGravity(0, -levels[currentLevel - 1].gravity);
+            playSound(soundMove); // Sonido de movimiento
+        });
+        gravityBtns.down.addEventListener('click', () => {
+            setGravity(0, levels[currentLevel - 1].gravity);
+            playSound(soundMove); // Sonido de movimiento
+        });
+        gravityBtns.left.addEventListener('click', () => {
+            setGravity(-levels[currentLevel - 1].gravity, 0);
+            playSound(soundMove); // Sonido de movimiento
+        });
+        gravityBtns.right.addEventListener('click', () => {
+            setGravity(levels[currentLevel - 1].gravity, 0);
+            playSound(soundMove); // Sonido de movimiento
+        });
+        gravityBtns.zero.addEventListener('click', () => {
+            setGravity(0, 0);
+            playSound(soundMove); // Sonido de movimiento
+        });
         
         // Botones de nivel
         levelButtons.forEach(btn => {
             btn.addEventListener('click', function() {
+                playSound(soundMove); // Sonido al cambiar de nivel
                 attempts = 0;
                 attemptsDisplay.textContent = attempts;
                 loadLevel(parseInt(this.dataset.level));
@@ -1036,6 +1123,10 @@
         // Continuar en móvil
         continueBtn.addEventListener('click', function() {
             mobileWarning.style.display = 'none';
+            // Activar sonidos con la primera interacción del usuario
+            soundSuccess.play().then(() => soundSuccess.pause()).catch(e => console.log(e));
+            soundError.play().then(() => soundError.pause()).catch(e => console.log(e));
+            soundMove.play().then(() => soundMove.pause()).catch(e => console.log(e));
         });
     }
 

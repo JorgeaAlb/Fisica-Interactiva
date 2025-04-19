@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balanza colgante mejorada</title>
+    <title>Balanza colgante</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -288,26 +288,6 @@
             right: -10px;
         }
         
-        /* Líneas de distancia */
-        /* .distance-line {
-            position: absolute;
-            height: 2px;
-            background-color: rgba(52, 152, 219, 0.5);
-            top: 70px;
-            z-index: 1;
-        } */
-        
-        /* .distance-label {
-            position: absolute;
-            font-size: 10px;
-            color: var(--color-primary);
-            top: 60px;
-            transform: translateX(-50%);
-            background: white;
-            padding: 0 3px;
-            border-radius: 3px;
-        }
-         */
         /* Controles mejorados */
         .controls {
             margin-top: 20px;
@@ -519,6 +499,19 @@
             100% { transform: translateY(300px) rotate(360deg); opacity: 0; }
         }
         
+        /* Control de volumen */
+        .volume-control {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin: 1rem auto;
+            justify-content: center;
+        }
+        
+        .volume-control i {
+            color: var(--color-primary);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .mobile {
@@ -563,6 +556,12 @@
         <div class="game-container">
             <h1>Equilibra la Balanza</h1>
             <p class="instructions">Haz clic en los marcadores para mover el punto de apoyo</p>
+            
+            <!-- Control de volumen -->
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+            </div>
             
             <div class="difficulty-selector">
                 <button class="difficulty-btn active" data-level="easy">Fácil</button>
@@ -620,6 +619,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Sonidos del juego
+            const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+            const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+            const soundMove = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3');
+            const soundLevelUp = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+            const soundClick = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3');
+            const soundTilt = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+            
+            // Configurar precarga de sonidos
+            [soundSuccess, soundError, soundMove, soundLevelUp, soundClick, soundTilt].forEach(sound => {
+                sound.preload = 'auto';
+                sound.volume = 0.7;
+            });
+            
+            // Función para reproducir sonidos con manejo de errores
+            function playSound(sound) {
+                try {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                } catch (e) {
+                    console.log("Error con sonido:", e);
+                }
+            }
+            
+            // Control de volumen
+            const volumeSlider = document.getElementById('volumeSlider');
+            volumeSlider.addEventListener('input', function() {
+                const volume = parseFloat(this.value);
+                soundSuccess.volume = volume;
+                soundError.volume = volume;
+                soundMove.volume = volume;
+                soundLevelUp.volume = volume;
+                soundClick.volume = volume;
+                soundTilt.volume = volume;
+            });
+            
             // Elementos del juego
             const topWire = document.getElementById('topWire');
             const checkBtn = document.getElementById('checkBtn');
@@ -641,10 +676,6 @@
             const rightWeightElement = document.querySelector('.right-weight');
             const leftWire = document.querySelector('.left-wire');
             const rightWire = document.querySelector('.right-wire');
-            const leftDistanceLine = document.getElementById('leftDistance');
-            const rightDistanceLine = document.getElementById('rightDistance');
-            const leftDistanceLabel = document.getElementById('leftDistanceLabel');
-            const rightDistanceLabel = document.getElementById('rightDistanceLabel');
 
             // Variables del juego
             let gameState = {
@@ -705,14 +736,19 @@
                     showTutorial();
                     localStorage.setItem('balanzaTutorial', 'seen');
                 }
+                
+                // Sonido de inicio
+                playSound(soundClick);
             }
 
             function showTutorial() {
                 tutorial.style.display = 'block';
+                playSound(soundClick);
             }
 
             function hideTutorial() {
                 tutorial.style.display = 'none';
+                playSound(soundClick);
             }
 
             // Generar pesos según la dificultad
@@ -793,33 +829,8 @@
                 // Actualizar la inclinación de la balanza
                 updateBalanceTilt();
                 
-                // Actualizar líneas de distancia
-                updateDistanceLines();
-            }
-
-            // Actualizar líneas de distancia
-            function updateDistanceLines() {
-                const leftDistance = gameState.currentPosition - 1;
-                const rightDistance = 7 - gameState.currentPosition;
-                
-                // Calcular posiciones
-                const beamRect = balanceBeam.getBoundingClientRect();
-                const leftPos = (leftDistance / 6) * beamRect.width;
-                const rightPos = (rightDistance / 6) * beamRect.width;
-                
-                // Actualizar líneas
-                leftDistanceLine.style.left = '0px';
-                leftDistanceLine.style.width = `${leftPos}px`;
-                
-                rightDistanceLine.style.right = '0px';
-                rightDistanceLine.style.width = `${rightPos}px`;
-                
-                // Actualizar etiquetas
-                leftDistanceLabel.textContent = `${leftDistance} unidades`;
-                leftDistanceLabel.style.left = `${leftPos / 2}px`;
-                
-                rightDistanceLabel.textContent = `${rightDistance} unidades`;
-                rightDistanceLabel.style.right = `${rightPos / 2}px`;
+                // Sonido de movimiento
+                playSound(soundMove);
             }
 
             // Actualizar la inclinación visual de la balanza
@@ -843,11 +854,13 @@
                     balanceBeam.classList.add('tilt-left');
                     leftWeightElement.classList.add('tilt-left');
                     leftWire.classList.add('tilt-left');
+                    playSound(soundTilt);
                 } else {
                     // Inclinación hacia la derecha
                     balanceBeam.classList.add('tilt-right');
                     rightWeightElement.classList.add('tilt-right');
                     rightWire.classList.add('tilt-right');
+                    playSound(soundTilt);
                 }
             }
 
@@ -866,6 +879,9 @@
                 } else {
                     handleIncorrect();
                 }
+                
+                // Sonido de comprobación
+                playSound(soundClick);
             }
 
             function handleWin() {
@@ -889,6 +905,9 @@
                     <p>${(gameState.leftWeight * leftDist).toFixed(2)} = ${(gameState.rightWeight * rightDist).toFixed(2)}</p>
                 `;
                 
+                // Sonido de éxito
+                playSound(soundSuccess);
+                
                 // Efecto de confeti
                 createConfetti();
                 
@@ -903,6 +922,9 @@
                 } else {
                     showMessage("Intenta mover el punto de apoyo a la izquierda");
                 }
+                
+                // Sonido de error
+                playSound(soundError);
                 
                 // Efecto visual de vibración
                 balanceBeam.classList.add('pulse');
@@ -952,6 +974,9 @@
                 if (gameState.hintsUsed >= 3) {
                     hintBtn.disabled = true;
                 }
+                
+                // Sonido de pista
+                playSound(soundClick);
                 
                 // Quitar el resaltado después de 3 segundos
                 setTimeout(() => {
@@ -1019,6 +1044,9 @@
                         <p>Posición correcta: ${gameState.correctPosition}</p>
                         <p class="formula">${formatWeight(gameState.leftWeight)} × ${leftDist} = ${formatWeight(gameState.rightWeight)} × ${rightDist}</p>
                     `;
+                    
+                    // Sonido de tiempo terminado
+                    playSound(soundError);
                 }
                 
                 // Detener animaciones
@@ -1038,6 +1066,9 @@
                     setTimeout(() => {
                         this.style.transform = 'scale(1.5)';
                     }, 200);
+                    
+                    // Sonido de clic
+                    playSound(soundClick);
                 });
             });
 
@@ -1051,6 +1082,9 @@
                     this.classList.add('active');
                     gameState.difficulty = this.getAttribute('data-level');
                     initGame();
+                    
+                    // Sonido de cambio de dificultad
+                    playSound(soundClick);
                 });
             });
 
