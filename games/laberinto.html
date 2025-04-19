@@ -700,7 +700,7 @@
                 [1, 1, 1, 1, 1, 1, 1, 1]
             ],
             start: { x: 2, y: 1 },
-            gravity: 0.5
+            gravity: 0.6
         },
 
         { // Nivel 2
@@ -812,7 +812,7 @@
                 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
             ],
-            start: { x: 5, y: 3 },
+            start: { x: 15, y: 5 },
             gravity: 1
         }
     ];
@@ -986,35 +986,37 @@
 
     // Renderizar el juego
     function render() {
-        // Limpiar canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Dibujar laberinto
-        for (let y = 0; y < mazeHeight; y++) {
-            for (let x = 0; x < mazeWidth; x++) {
-                if (currentMaze[y][x] === 1) { // Pared
-                    ctx.fillStyle = '#34495e';
-                    ctx.fillRect(
-                        x * cellSize + offsetX, 
-                        y * cellSize + offsetY, 
-                        cellSize, 
-                        cellSize
-                    );
-                } else if (currentMaze[y][x] === 2) { // Meta
-                    ctx.fillStyle = '#2ecc71';
-                    ctx.beginPath();
-                    ctx.arc(
-                        x * cellSize + cellSize / 2 + offsetX, 
-                        y * cellSize + cellSize / 2 + offsetY, 
-                        cellSize / 3, 
-                        0, 
-                        Math.PI * 2
-                    );
-                    ctx.fill();
-                }
+    // Limpiar canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Dibujar laberinto
+    ctx.fillStyle = '#34495e'; // Color de las paredes
+    for (let y = 0; y < mazeHeight; y++) {
+        for (let x = 0; x < mazeWidth; x++) {
+            if (currentMaze[y][x] === 1) { // Pared
+                // Dibujar el rectángulo ligeramente más grande para solapar bordes
+                ctx.fillRect(
+                    Math.floor(x * cellSize + offsetX) - 0.5, 
+                    Math.floor(y * cellSize + offsetY) - 0.5, 
+                    Math.ceil(cellSize) + 1, 
+                    Math.ceil(cellSize) + 1
+                );
+            } else if (currentMaze[y][x] === 2) { // Meta
+                ctx.fillStyle = '#2ecc71';
+                ctx.beginPath();
+                ctx.arc(
+                    x * cellSize + cellSize / 2 + offsetX, 
+                    y * cellSize + cellSize / 2 + offsetY, 
+                    cellSize / 3, 
+                    0, 
+                    Math.PI * 2
+                );
+                ctx.fill();
+                ctx.fillStyle = '#34495e'; // Restaurar color para paredes
             }
         }
-        
+    }
+    
         // Dibujar bola
         ctx.fillStyle = '#e74c3c';
         ctx.beginPath();
