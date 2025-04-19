@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enciende el Laboratorio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #16213e;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin: 0;
+            color: #f8bb22;
+            text-shadow: 0 0 10px rgba(248, 187, 34, 0.5);
+        }
+
+        .game-container {
+            display: flex;
+            flex: 1;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .components-panel {
+            width: 200px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .component {
+            background-color: #2d4059;
+            color: white;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            cursor: grab;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            -webkit-user-drag: element;
+        }
+
+        .component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-color: #3a4e6f;
+        }
+
+        .component:active {
+            cursor: grabbing;
+        }
+
+        .workspace {
+            flex: 1;
+            background-color: #0f3460;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        #circuit-canvas {
+            width: 100%;
+            height: 100%;
+            background-color: #0a1a2e;
+        }
+
+        .info-panel {
+            width: 250px;
+            background-color: #0f3460;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .controls {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        button {
+            background-color: #f8bb22;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #ffd166;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .level-info {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #2d4059;
+            border-radius: 4px;
+        }
+
+        .circuit-info {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #2d4059;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+
+        .energy-bar {
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .energy-level {
+            height: 100%;
+            background-color: #f8bb22;
+            width: 100%;
+            transition: width 0.3s;
+        }
+
+        .success-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(46, 125, 50, 0.9);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(46, 125, 50, 0.7);
+            display: none;
+        }
+
+        .wire {
+            position: absolute;
+            background-color: #f8bb22;
+            height: 4px;
+            transform-origin: left center;
+            z-index: 1;
+        }
+
+        .component-image {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 2;
+            cursor: move;
+            user-select: none;
+            background-color: #2d4059;
+            border-radius: 8px;
+        }
+
+        .connection-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #f8bb22;
+            border-radius: 50%;
+            z-index: 3;
+            cursor: pointer;
+        }
+
+        .connection-point:hover {
+            transform: scale(1.3);
+        }
+
+        .bulb-on {
+            color: yellow;
+            text-shadow: 0 0 10px yellow;
+            animation: glow 0.5s infinite alternate;
+        }
+
+        .led-on {
+            color: red;
+            text-shadow: 0 0 10px red;
+            animation: glow 0.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px currentColor;
+            }
+            to {
+                text-shadow: 0 0 20px currentColor;
+            }
+        }
+        
+        .reveal-button {
+            background-color: #4CAF50;
+            margin-top: 10px;
+        }
+        
+        .solution-image {
+            max-width: 100%;
+            margin-top: 10px;
+            display: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔌 Enciende el Laboratorio</h1>
+    </header>
+
+    <div class="game-container">
+        <div class="components-panel">
+            <h3>Componentes</h3>
+            <div class="component" draggable="true" data-type="battery" data-voltage="9">Batería (9V)</div>
+            <div class="component" draggable="true" data-type="resistor" data-resistance="100">Resistencia (100Ω)</div>
+            <div class="component" draggable="true" data-type="resistor" data-resistance="220">Resistencia (220Ω)</div>
+            <div class="component" draggable="true" data-type="bulb" data-resistance="150">Foco (150Ω)</div>
+            <div class="component" draggable="true" data-type="led" data-resistance="50">LED (50Ω)</div>
+            <div class="component" draggable="true" data-type="switch" data-resistance="0">Interruptor</div>
+            <button id="reveal-solution" class="reveal-button">Revelar Solución</button>
+            <img id="solution-image" class="solution-image" src="" alt="Solución del nivel">
+        </div>
+
+        <div class="workspace">
+            <canvas id="circuit-canvas"></canvas>
+            
+            <div class="success-message">
+                <h2>¡Circuito Correcto!</h2>
+                <p>Has completado el nivel satisfactoriamente.</p>
+                <button id="next-level-btn">Siguiente Nivel</button>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="level-info">
+                <h3>Nivel 1</h3>
+                <p id="level-description">Objetivo: Enciende el foco conectando una batería y una resistencia.</p>
+                <div class="energy-bar">
+                    <div class="energy-level" id="energy-level"></div>
+                </div>
+                <p>Energía: <span id="energy-value">100</span>%</p>
+            </div>
+
+            <div class="circuit-info">
+                <h3>Información del Circuito</h3>
+                <p id="circuit-status">Circuito abierto</p>
+                <p id="voltage-info">Voltaje: 0V</p>
+                <p id="current-info">Corriente: 0A</p>
+                <p id="resistance-info">Resistencia: 0Ω</p>
+            </div>
+
+            <div class="controls">
+                <button id="test-circuit">Probar Circuito</button>
+                <button id="reset-circuit">Reiniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuración del juego
+            const canvas = document.getElementById('circuit-canvas');
+            const ctx = canvas.getContext('2d');
+            const workspace = document.querySelector('.workspace');
+            const componentsPanel = document.querySelector('.components-panel');
+            const testButton = document.getElementById('test-circuit');
+            const resetButton = document.getElementById('reset-circuit');
+            const nextLevelButton = document.getElementById('next-level-btn');
+            const successMessage = document.querySelector('.success-message');
+            const circuitStatus = document.getElementById('circuit-status');
+            const voltageInfo = document.getElementById('voltage-info');
+            const currentInfo = document.getElementById('current-info');
+            const resistanceInfo = document.getElementById('resistance-info');
+            const energyLevel = document.getElementById('energy-level');
+            const energyValue = document.getElementById('energy-value');
+            const levelDescription = document.getElementById('level-description');
+            const revealButton = document.getElementById('reveal-solution');
+            const solutionImage = document.getElementById('solution-image');
+
+            // Ajustar tamaño del canvas
+            function resizeCanvas() {
+                canvas.width = workspace.clientWidth;
+                canvas.height = workspace.clientHeight;
+                redrawCanvas();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Variables del juego
+            let components = [];
+            let wires = [];
+            let draggedComponent = null;
+            let draggedWire = null;
+            let connectionStart = null;
+            let energy = 100;
+            let currentLevel = 1;
+            let isCircuitComplete = false;
+            let switchStates = {};
+
+            // Imágenes de componentes
+            const componentImages = {
+                battery: '🔋',
+                resistor: '🟠',
+                bulb: '💡',
+                led: '🔴',
+                switch: '🔘'
+            };
+
+            // Soluciones de los niveles (imágenes o descripciones)
+            const levelSolutions = [
+                "https://i.imgur.com/JQ6Yl5n.png", // Nivel 1
+                "https://i.imgur.com/8X9vZzF.png", // Nivel 2
+                "https://i.imgur.com/pL3V4dT.png", // Nivel 3
+                "https://i.imgur.com/mW7cGqQ.png"  // Nivel 4
+            ];
+
+            // Niveles del juego
+            const levels = [
+                {
+                    description: "Enciende el foco conectando una batería y una resistencia.",
+                    requiredComponents: ['battery', 'resistor', 'bulb'],
+                    minResistance: 100,
+                    maxResistance: 300,
+                    checkBulbInPath: true
+                },
+                {
+                    description: "Usa un interruptor para controlar el flujo de corriente.",
+                    requiredComponents: ['battery', 'resistor', 'bulb', 'switch'],
+                    minResistance: 100,
+                    maxResistance: 300,
+                    checkBulbInPath: true
+                },
+                {
+                    description: "Crea un circuito en paralelo para encender dos focos.",
+                    requiredComponents: ['battery', 'resistor', 'bulb', 'bulb'],
+                    minResistance: 100,
+                    maxResistance: 300,
+                    parallelRequired: true,
+                    checkBulbInPath: true
+                },
+                {
+                    description: "Protege un LED con una resistencia específica (entre 200Ω y 250Ω).",
+                    requiredComponents: ['battery', 'resistor', 'led'],
+                    minResistance: 200,
+                    maxResistance: 250,
+                    checkBulbInPath: false
+                }
+            ];
+
+            // Actualizar información del nivel
+            function updateLevelInfo() {
+                const levelInfo = document.querySelector('.level-info h3');
+                levelInfo.textContent = `Nivel ${currentLevel}`;
+                levelDescription.textContent = levels[currentLevel - 1].description;
+                solutionImage.src = levelSolutions[currentLevel - 1];
+                solutionImage.style.display = 'none';
+            }
+
+            // Componentes arrastrables
+            const draggableComponents = document.querySelectorAll('.component[draggable="true"]');
+            draggableComponents.forEach(component => {
+                component.addEventListener('dragstart', function(e) {
+                    draggedComponent = {
+                        type: this.dataset.type,
+                        voltage: this.dataset.voltage ? parseFloat(this.dataset.voltage) : 0,
+                        resistance: this.dataset.resistance ? parseFloat(this.dataset.resistance) : 0,
+                        element: this
+                    };
+                    e.dataTransfer.setData('text/plain', 'component');
+                });
+            });
+
+            // Permitir soltar componentes en el área de trabajo
+            workspace.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            workspace.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (!draggedComponent) return;
+
+                const rect = workspace.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                addComponent(draggedComponent.type, x, y, draggedComponent.voltage, draggedComponent.resistance);
+                draggedComponent = null;
+            });
+
+            // Añadir componente al área de trabajo
+            function addComponent(type, x, y, voltage = 0, resistance = 0) {
+                const componentId = 'comp-' + Date.now() + Math.random().toString(36).substr(2, 5);
+                const component = {
+                    id: componentId,
+                    type: type,
+                    x: x,
+                    y: y,
+                    voltage: voltage,
+                    resistance: resistance,
+                    connections: [],
+                    input: null,
+                    output: null
+                };
+
+                // Crear elemento visual
+                const componentElement = document.createElement('div');
+                componentElement.className = 'component-image';
+                componentElement.textContent = componentImages[type] || '⚙️';
+                componentElement.style.left = `${x - 20}px`;
+                componentElement.style.top = `${y - 20}px`;
+                componentElement.dataset.id = componentId;
+                workspace.appendChild(componentElement);
+
+                // Puntos de conexión
+                const connection1 = createConnectionPoint(componentId, x - 20, y, 'input');
+                const connection2 = createConnectionPoint(componentId, x + 20, y, 'output');
+
+                component.input = connection1;
+                component.output = connection2;
+
+                // Hacer el componente arrastrable
+                makeDraggable(componentElement, component);
+
+                // Si es un interruptor, añadir evento de clic
+                if (type === 'switch') {
+                    switchStates[componentId] = false;
+                    componentElement.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('connection-point')) return;
+                        
+                        switchStates[componentId] = !switchStates[componentId];
+                        component.resistance = switchStates[componentId] ? 0.1 : 1000;
+                        componentElement.style.backgroundColor = switchStates[componentId] ? '#4CAF50' : '#2d4059';
+                        
+                        if (isCircuitComplete) {
+                            const result = testCircuit();
+                            if (!result.success) {
+                                isCircuitComplete = false;
+                                circuitStatus.textContent = "Interruptor abierto - circuito incompleto";
+                                circuitStatus.style.color = "#F44336";
+                                turnOffAllLights();
+                            }
+                        }
+                    });
+                }
+
+                components.push(component);
+                return component;
+            }
+
+            // Crear punto de conexión
+            function createConnectionPoint(componentId, x, y, type) {
+                const connectionElement = document.createElement('div');
+                connectionElement.className = 'connection-point';
+                connectionElement.style.left = `${x - 6}px`;
+                connectionElement.style.top = `${y - 6}px`;
+                connectionElement.dataset.componentId = componentId;
+                connectionElement.dataset.type = type;
+                workspace.appendChild(connectionElement);
+
+                // Eventos para conectar cables
+                connectionElement.addEventListener('mousedown', startWireConnection);
+                connectionElement.addEventListener('mouseup', endWireConnection);
+
+                return {
+                    element: connectionElement,
+                    x: x,
+                    y: y,
+                    type: type,
+                    connectedTo: null,
+                    wires: []
+                };
+            }
+
+            // Hacer componente arrastrable
+            function makeDraggable(element, componentData) {
+                let offsetX, offsetY, isDragging = false;
+
+                element.addEventListener('mousedown', function(e) {
+                    if (e.target.classList.contains('connection-point')) return;
+
+                    isDragging = true;
+                    offsetX = e.clientX - parseFloat(element.style.left);
+                    offsetY = e.clientY - parseFloat(element.style.top);
+                    element.style.cursor = 'grabbing';
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+
+                    const rect = workspace.getBoundingClientRect();
+                    let newX = e.clientX - offsetX;
+                    let newY = e.clientY - offsetY;
+
+                    // Limitar al área de trabajo
+                    newX = Math.max(0, Math.min(newX, rect.width - 40));
+                    newY = Math.max(0, Math.min(newY, rect.height - 40));
+
+                    element.style.left = `${newX}px`;
+                    element.style.top = `${newY}px`;
+
+                    // Actualizar posición en el modelo
+                    componentData.x = newX + 20;
+                    componentData.y = newY + 20;
+
+                    // Actualizar puntos de conexión
+                    updateConnectionPoints(componentData);
+
+                    // Redibujar cables conectados
+                    redrawWires();
+                });
+
+                document.addEventListener('mouseup', function() {
+                    isDragging = false;
+                    element.style.cursor = 'move';
+                });
+            }
+
+            // Actualizar puntos de conexión al mover componente
+            function updateConnectionPoints(component) {
+                // Actualizar posición de los puntos de conexión
+                component.input.x = component.x - 20;
+                component.input.y = component.y;
+                component.output.x = component.x + 20;
+                component.output.y = component.y;
+                
+                // Actualizar elementos visuales
+                component.input.element.style.left = `${component.input.x - 6}px`;
+                component.input.element.style.top = `${component.input.y - 6}px`;
+                component.output.element.style.left = `${component.output.x - 6}px`;
+                component.output.element.style.top = `${component.output.y - 6}px`;
+
+                // Actualizar cables conectados
+                redrawWires();
+            }
+
+            // Iniciar conexión de cable
+            function startWireConnection(e) {
+                e.stopPropagation();
+                connectionStart = {
+                    componentId: this.dataset.componentId,
+                    type: this.dataset.type,
+                    x: parseFloat(this.style.left) + 6,
+                    y: parseFloat(this.style.top) + 6,
+                    element: this
+                };
+
+                // Crear cable temporal
+                draggedWire = document.createElement('div');
+                draggedWire.className = 'wire';
+                draggedWire.style.left = `${connectionStart.x}px`;
+                draggedWire.style.top = `${connectionStart.y}px`;
+                workspace.appendChild(draggedWire);
+
+                // Deshabilitar eventos del documento mientras se arrastra
+                document.addEventListener('mousemove', updateDraggedWire);
+                document.addEventListener('mouseup', cancelWireConnection);
+            }
+
+            // Actualizar cable mientras se arrastra
+            function updateDraggedWire(e) {
+                if (!draggedWire) return;
+                
+                const rect = workspace.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const dx = x - connectionStart.x;
+                const dy = y - connectionStart.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                draggedWire.style.width = `${length}px`;
+                draggedWire.style.transform = `rotate(${angle}deg)`;
+            }
+
+            // Cancelar conexión de cable
+            function cancelWireConnection() {
+                if (draggedWire) {
+                    draggedWire.remove();
+                    draggedWire = null;
+                }
+                connectionStart = null;
+                
+                // Remover listeners temporales
+                document.removeEventListener('mousemove', updateDraggedWire);
+                document.removeEventListener('mouseup', cancelWireConnection);
+            }
+
+            // Terminar conexión de cable
+            function endWireConnection(e) {
+                e.stopPropagation();
+                if (!connectionStart || !draggedWire) return;
+
+                const connectionEnd = {
+                    componentId: this.dataset.componentId,
+                    type: this.dataset.type,
+                    x: parseFloat(this.style.left) + 6,
+                    y: parseFloat(this.style.top) + 6,
+                    element: this
+                };
+
+                // Verificar que no sea el mismo punto de conexión
+                if (connectionStart.componentId === connectionEnd.componentId) {
+                    cancelWireConnection();
+                    return;
+                }
+
+                // Verificar que no sean del mismo tipo (input-input o output-output)
+                if (connectionStart.type === connectionEnd.type) {
+                    cancelWireConnection();
+                    alert("No puedes conectar dos entradas o dos salidas juntas.");
+                    return;
+                }
+
+                // Verificar que no sean del mismo componente (a menos que sea un interruptor)
+                const startComponent = components.find(c => c.id === connectionStart.componentId);
+                const endComponent = components.find(c => c.id === connectionEnd.componentId);
+                
+                if (startComponent && endComponent && startComponent.id === endComponent.id && 
+                    startComponent.type !== 'switch') {
+                    cancelWireConnection();
+                    alert("No puedes conectar un componente a sí mismo (excepto interruptores).");
+                    return;
+                }
+
+                // Verificar si ya existe una conexión entre estos puntos
+                const startPoint = connectionStart.type === 'input' ? 
+                    startComponent.input : startComponent.output;
+                const endPoint = connectionEnd.type === 'input' ? 
+                    endComponent.input : endComponent.output;
+                
+                if (startPoint.wires.some(w => w.end.componentId === connectionEnd.componentId && 
+                                             w.end.type === connectionEnd.type)) {
+                    cancelWireConnection();
+                    alert("Ya existe una conexión entre estos puntos.");
+                    return;
+                }
+
+                // Crear conexión permanente
+                const wireId = 'wire-' + Date.now() + Math.random().toString(36).substr(2, 5);
+                const wire = {
+                    id: wireId,
+                    start: connectionStart,
+                    end: connectionEnd,
+                    element: draggedWire
+                };
+
+                wires.push(wire);
+                updateWireElement(wire);
+
+                // Registrar conexión en los puntos
+                startPoint.wires.push({
+                    end: { componentId: connectionEnd.componentId, type: connectionEnd.type },
+                    wire: wire
+                });
+                endPoint.wires.push({
+                    end: { componentId: connectionStart.componentId, type: connectionStart.type },
+                    wire: wire
+                });
+
+                // Registrar conexión en los componentes
+                if (connectionStart.type === 'output') {
+                    // start -> end
+                    startComponent.connections.push({
+                        to: connectionEnd.componentId,
+                        type: 'output',
+                        connectedTo: connectionEnd.type
+                    });
+                    endComponent.connections.push({
+                        from: connectionStart.componentId,
+                        type: 'input',
+                        connectedFrom: connectionStart.type
+                    });
+                } else {
+                    // end -> start
+                    endComponent.connections.push({
+                        to: connectionStart.componentId,
+                        type: 'output',
+                        connectedTo: connectionStart.type
+                    });
+                    startComponent.connections.push({
+                        from: connectionEnd.componentId,
+                        type: 'input',
+                        connectedFrom: connectionEnd.type
+                    });
+                }
+
+                // Remover listeners temporales
+                document.removeEventListener('mousemove', updateDraggedWire);
+                document.removeEventListener('mouseup', cancelWireConnection);
+
+                draggedWire = null;
+                connectionStart = null;
+            }
+
+            // Actualizar elemento visual del cable
+            function updateWireElement(wire) {
+                const dx = wire.end.x - wire.start.x;
+                const dy = wire.end.y - wire.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                wire.element.style.width = `${length}px`;
+                wire.element.style.left = `${wire.start.x}px`;
+                wire.element.style.top = `${wire.start.y}px`;
+                wire.element.style.transform = `rotate(${angle}deg)`;
+            }
+
+            // Redibujar todos los cables
+            function redrawWires() {
+                wires.forEach(wire => {
+                    // Actualizar posiciones de inicio/fin
+                    const startComponent = components.find(c => c.id === wire.start.componentId);
+                    const endComponent = components.find(c => c.id === wire.end.componentId);
+                    
+                    if (startComponent && endComponent) {
+                        wire.start.x = wire.start.type === 'input' ? 
+                            startComponent.input.x : startComponent.output.x;
+                        wire.start.y = wire.start.type === 'input' ? 
+                            startComponent.input.y : startComponent.output.y;
+                        wire.end.x = wire.end.type === 'input' ? 
+                            endComponent.input.x : endComponent.output.x;
+                        wire.end.y = wire.end.type === 'input' ? 
+                            endComponent.input.y : endComponent.output.y;
+                        
+                        updateWireElement(wire);
+                    }
+                });
+            }
+
+            // Redibujar canvas
+            function redrawCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Probar circuito
+            testButton.addEventListener('click', function() {
+                if (isCircuitComplete) return;
+                
+                const result = testCircuit();
+                if (result.success) {
+                    circuitStatus.textContent = "¡Circuito correcto!";
+                    circuitStatus.style.color = "#4CAF50";
+                    successMessage.style.display = 'block';
+                    isCircuitComplete = true;
+                    
+                    // Encender focos/LEDs
+                    turnOnLights(result.path);
+                } else {
+                    circuitStatus.textContent = result.message;
+                    circuitStatus.style.color = "#F44336";
+                    
+                    // Reducir energía por intento fallido
+                    energy = Math.max(0, energy - 10);
+                    energyLevel.style.width = `${energy}%`;
+                    energyValue.textContent = `${energy}%`;
+                    
+                    if (energy <= 0) {
+                        setTimeout(() => {
+                            alert("¡Te quedaste sin energía! Reiniciando nivel...");
+                            resetCircuit();
+                            energy = 100;
+                            energyLevel.style.width = '100%';
+                            energyValue.textContent = '100';
+                        }, 500);
+                    }
+                }
+            });
+
+            // Función para probar circuito
+            function testCircuit() {
+                const level = levels[currentLevel - 1];
+                const battery = components.find(c => c.type === 'battery');
+                
+                if (!battery) {
+                    return { success: false, message: "No hay batería en el circuito" };
+                }
+
+                // Verificar si hay al menos un foco o LED en los componentes
+                const hasBulbOrLED = components.some(c => c.type === 'bulb' || c.type === 'led');
+                if (level.checkBulbInPath && !hasBulbOrLED) {
+                    return { 
+                        success: false, 
+                        message: "No has colocado ningún foco o LED en el circuito" 
+                    };
+                }
+
+                // Buscar caminos válidos desde la batería
+                const result = findValidPath(battery, level);
+                
+                if (result.success) {
+                    // Calcular valores del circuito
+                    const totalResistance = result.totalResistance;
+                    const voltage = battery.voltage;
+                    const current = voltage / totalResistance;
+                    
+                    // Actualizar panel
+                    voltageInfo.textContent = `Voltaje: ${voltage}V`;
+                    currentInfo.textContent = `Corriente: ${current.toFixed(3)}A`;
+                    resistanceInfo.textContent = `Resistencia: ${totalResistance}Ω`;
+                    
+                    return {
+                        success: true,
+                        voltage: voltage,
+                        current: current,
+                        resistance: totalResistance,
+                        path: result.path
+                    };
+                }
+                
+                return {
+                    success: false,
+                    message: result.message || "El circuito no está cerrado correctamente"
+                };
+            }
+
+            // Función para encontrar un camino válido en el circuito
+            function findValidPath(battery, level) {
+                const visited = new Set();
+                const queue = [];
+                let hasBulbInPath = false;
+                let totalResistance = 0;
+                let path = [];
+
+                // Iniciar búsqueda desde las salidas de la batería
+                battery.connections
+                    .filter(c => c.type === 'output')
+                    .forEach(conn => {
+                        queue.push({
+                            componentId: conn.to,
+                            from: battery.id,
+                            currentPath: [battery.id],
+                            currentResistance: 0,
+                            hasBulb: false
+                        });
+                    });
+
+                while (queue.length > 0) {
+                    const current = queue.shift();
+                    const component = components.find(c => c.id === current.componentId);
+                    
+                    if (!component || visited.has(component.id)) continue;
+                    visited.add(component.id);
+
+                    // Actualizar propiedades del camino
+                    const newResistance = current.currentResistance + component.resistance;
+                    const newHasBulb = current.hasBulb || component.type === 'bulb' || component.type === 'led';
+                    const newPath = [...current.currentPath, component.id];
+
+                    // Verificar si regresa a la batería (circuito cerrado)
+                    const returnsToBattery = component.connections
+                        .filter(c => c.type === 'input')
+                        .some(input => input.from === battery.id);
+
+                    if (returnsToBattery) {
+                        // Verificar requisitos del nivel
+                        if (level.checkBulbInPath && !newHasBulb) {
+                            continue; // Saltar si no tiene foco/LED cuando es requerido
+                        }
+
+                        // Verificar resistencia para LEDs
+                        if (component.type === 'led' && 
+                            (newResistance < level.minResistance || newResistance > level.maxResistance)) {
+                            continue;
+                        }
+
+                        // Verificar interruptores abiertos
+                        const hasOpenSwitch = newPath.some(id => {
+                            const comp = components.find(c => c.id === id);
+                            return comp?.type === 'switch' && !switchStates[id];
+                        });
+
+                        if (!hasOpenSwitch) {
+                            // Circuito válido encontrado
+                            return {
+                                success: true,
+                                totalResistance: newResistance,
+                                path: [...newPath, battery.id],
+                                hasBulb: newHasBulb
+                            };
+                        }
+                    }
+
+                    // Explorar conexiones salientes
+                    component.connections
+                        .filter(c => c.type === 'output')
+                        .forEach(conn => {
+                            if (!visited.has(conn.to)) {
+                                queue.push({
+                                    componentId: conn.to,
+                                    from: component.id,
+                                    currentPath: newPath,
+                                    currentResistance: newResistance,
+                                    hasBulb: newHasBulb
+                                });
+                            }
+                        });
+                }
+
+                return { 
+                    success: false,
+                    message: level.checkBulbInPath ? 
+                        "El circuito no incluye un foco o LED para encender" :
+                        "El circuito no está cerrado correctamente"
+                };
+            }
+
+            // Encender focos/LEDs en el camino correcto
+            function turnOnLights(path) {
+                // Primero apagar todos
+                turnOffAllLights();
+                
+                // Encender los que están en el camino
+                path.forEach(componentId => {
+                    const component = components.find(c => c.id === componentId);
+                    if (!component) return;
+                    
+                    const element = document.querySelector(`.component-image[data-id="${componentId}"]`);
+                    if (!element) return;
+                    
+                    if (component.type === 'bulb') {
+                        element.classList.add('bulb-on');
+                    } else if (component.type === 'led') {
+                        element.classList.add('led-on');
+                    }
+                });
+            }
+
+            // Apagar todos los focos/LEDs
+            function turnOffAllLights() {
+                document.querySelectorAll('.bulb-on, .led-on').forEach(el => {
+                    el.classList.remove('bulb-on', 'led-on');
+                });
+            }
+
+            // Reiniciar circuito
+            resetButton.addEventListener('click', resetCircuit);
+
+            function resetCircuit() {
+                // Eliminar todos los componentes visuales
+                document.querySelectorAll('.component-image, .connection-point, .wire').forEach(el => {
+                    el.remove();
+                });
+                
+                // Reiniciar modelos
+                components = [];
+                wires = [];
+                switchStates = {};
+                
+                // Reiniciar información del circuito
+                circuitStatus.textContent = "Circuito abierto";
+                circuitStatus.style.color = "#e6e6e6";
+                voltageInfo.textContent = "Voltaje: 0V";
+                currentInfo.textContent = "Corriente: 0A";
+                resistanceInfo.textContent = "Resistencia: 0Ω";
+                
+                // Apagar todas las luces
+                turnOffAllLights();
+                
+                // Restablecer estado de circuito completo
+                isCircuitComplete = false;
+            }
+
+            // Siguiente nivel
+            nextLevelButton.addEventListener('click', function() {
+                currentLevel++;
+                if (currentLevel > levels.length) {
+                    currentLevel = 1;
+                    alert("¡Felicidades! Has completado todos los niveles.");
+                }
+                
+                updateLevelInfo();
+                resetCircuit();
+                successMessage.style.display = 'none';
+                isCircuitComplete = false;
+                energy = 100;
+                energyLevel.style.width = '100%';
+                energyValue.textContent = '100';
+            });
+
+            // Revelar solución
+            revealButton.addEventListener('click', function() {
+                solutionImage.style.display = solutionImage.style.display === 'none' ? 'block' : 'none';
+            });
+
+            // Inicializar juego
+            updateLevelInfo();
+        });
+    </script>
+</body>
+</html>
