@@ -385,7 +385,7 @@
         }
         
         .circuit-info {
-            display: flex;
+            display: none;
             justify-content: space-around;
             background-color: var(--color-light);
             padding: 15px;
@@ -665,6 +665,7 @@
             <div class="game-stats">
                 <div class="stat">Energía: <span id="energy">100</span>%</div>
                 <div class="stat">Intentos: <span id="attempts">0</span></div>
+                <div class="stat">Puntuación: <span id="score">0</span></div>
             </div>
             
             <div class="instructions" id="instructions">
@@ -737,24 +738,10 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     // Ocultar advertencia móvil si el usuario continúa
     document.querySelector('.btn-continue').addEventListener('click', function() {
         document.querySelector('.mobile-warning').style.display = 'none';
-    });
-    
-    // Menú hamburguesa
-    document.querySelector('.hamburger-btn').addEventListener('click', function() {
-        document.querySelector('nav ul').classList.toggle('active');
-    });
-    
-    // Cerrar menú al hacer clic en enlaces (solo en móvil)
-    document.querySelectorAll('nav ul li a').forEach(item => {
-        item.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                document.querySelector('nav ul').classList.remove('active');
-            }
-        });
     });
     
     // Variables del juego
@@ -773,7 +760,8 @@
             requiredComponents: ["battery", "bulb", "resistor"],
             requiredConnections: 2,
             voltage: 9,
-            resistance: 150
+            resistance: 150,
+            points: 10
         },
         2: {
             title: "Circuito con interruptor",
@@ -781,7 +769,8 @@
             requiredComponents: ["battery", "bulb", "switch"],
             requiredConnections: 3,
             voltage: 9,
-            resistance: 50
+            resistance: 50,
+            points: 20
         },
         3: {
             title: "Circuito en paralelo",
@@ -789,7 +778,8 @@
             requiredComponents: ["battery", "bulb", "bulb", "wire"],
             requiredConnections: 4,
             voltage: 9,
-            resistance: 25
+            resistance: 25,
+            points: 30
         },
         4: {
             title: "Circuito con LED",
@@ -797,7 +787,8 @@
             requiredComponents: ["battery", "led", "resistor"],
             requiredConnections: 2,
             voltage: 9,
-            resistance: 120
+            resistance: 120,
+            points: 40
         }
     };
     
@@ -814,16 +805,36 @@
     const checkButton = document.getElementById('check-circuit');
     const resetButton = document.getElementById('reset-circuit');
     const levelButtons = document.querySelectorAll('.level-btn');
+    const scoreDisplay = document.getElementById('score');
+    
+    // Variables de puntuación
+    let score = 0;
+    
+    // Sonidos
+    const soundPowerOn = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+    const soundPowerOff = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.mp3');
+    const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+    const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-changing-tab-206.mp3');
+    const soundLevelUp = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
     
     // Event listeners para los botones de nivel
     levelButtons.forEach(button => {
         button.addEventListener('click', function() {
-            levelButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            currentLevel = parseInt(this.dataset.level);
-            loadLevel(currentLevel);
+            changeLevel(parseInt(this.dataset.level));
         });
     });
+    
+    // Función para cambiar de nivel
+    function changeLevel(level) {
+        currentLevel = level;
+        
+        // Actualizar botones de nivel
+        levelButtons.forEach(btn => {
+            btn.classList.toggle('active', parseInt(btn.dataset.level) === currentLevel);
+        });
+        
+        loadLevel(currentLevel);
+    }
     
     // Cargar nivel
     function loadLevel(level) {
@@ -844,7 +855,17 @@
         placedComponents = [];
         connections = [];
         feedbackDisplay.style.display = 'none';
-        updateEnergy(0); // Restablecer energía solo si es penalización
+        updateEnergy(0);
+        
+        // Apagar todos los componentes
+        document.querySelectorAll('.placed-component.bulb, .placed-component.led').forEach(comp => {
+            comp.classList.remove('on');
+            const icon = comp.querySelector('i');
+            icon.style.textShadow = 'none';
+            icon.style.color = '';
+        });
+        
+        soundPowerOff.play();
     }
     
     // Actualizar energía
@@ -878,6 +899,13 @@
         feedbackDisplay.classList.add(`feedback-${type}`);
         feedbackDisplay.style.display = 'block';
         
+        // Reproducir sonido
+        if (type === 'success') {
+            soundSuccess.play();
+        } else {
+            soundError.play();
+        }
+        
         setTimeout(() => {
             feedbackDisplay.style.display = 'none';
         }, 3000);
@@ -905,7 +933,7 @@
                 component.dataset.resistance = data.resistance;
                 break;
             case 'bulb':
-                iconClass = 'fas fa-lightbulb';
+                iconClass = 'fas fa-lightbulb bulb-icon';
                 label = 'Foco';
                 component.dataset.resistance = data.resistance;
                 break;
@@ -919,7 +947,7 @@
                 label = 'Cable';
                 break;
             case 'led':
-                iconClass = 'fas fa-circle';
+                iconClass = 'fas fa-circle led-icon';
                 label = 'LED';
                 component.dataset.resistance = data.resistance;
                 break;
@@ -1013,10 +1041,12 @@
                     this.dataset.state = 'on';
                     icon.classList.remove('fa-toggle-off');
                     icon.classList.add('fa-toggle-on');
+                    soundPowerOn.play();
                 } else {
                     this.dataset.state = 'off';
                     icon.classList.remove('fa-toggle-on');
                     icon.classList.add('fa-toggle-off');
+                    soundPowerOff.play();
                 }
             });
         }
@@ -1122,6 +1152,7 @@
                 if (endPoint) {
                     // Crear conexión permanente
                     createConnection(point, endPoint);
+                    soundPowerOn.play();
                 }
                 
                 isConnecting = false;
@@ -1168,6 +1199,7 @@
                 if (index !== -1) {
                     connections.splice(index, 1);
                     wire.remove();
+                    soundPowerOff.play();
                 }
             }
         });
@@ -1258,11 +1290,13 @@
                     if (component.dataset.type === 'bulb' || component.dataset.type === 'led') {
                         component.classList.add('on');
                         const icon = component.querySelector('i');
+                        
                         if (component.dataset.type === 'bulb') {
-                            icon.classList.remove('fa-lightbulb');
-                            icon.classList.add('fa-lightbulb-on');
+                            icon.style.color = '#ffeb3b';
+                            icon.style.textShadow = '0 0 10px #ffeb3b, 0 0 20px #ffeb3b, 0 0 30px #ffeb3b';
                         } else {
-                            icon.style.color = 'var(--color-led-on)';
+                            icon.style.color = '#00ff00';
+                            icon.style.textShadow = '0 0 5px #00ff00, 0 0 10px #00ff00';
                         }
                     }
                 });
@@ -1274,8 +1308,31 @@
                 if (switchedOff) {
                     isValid = false;
                     message = "¡El interruptor está apagado! Enciéndelo para completar el circuito.";
+                    
+                    // Apagar los componentes si el interruptor está apagado
+                    placedComponents.forEach(component => {
+                        if (component.dataset.type === 'bulb' || component.dataset.type === 'led') {
+                            component.classList.remove('on');
+                            const icon = component.querySelector('i');
+                            icon.style.textShadow = 'none';
+                            icon.style.color = '';
+                        }
+                    });
                 } else {
-                    message = "¡Circuito completado correctamente!";
+                    // Circuito completado correctamente
+                    score += levelData.points;
+                    scoreDisplay.textContent = score;
+                    message = `¡Circuito completado correctamente! +${levelData.points} puntos`;
+                    
+                    // Pasar al siguiente nivel después de 2 segundos
+                    setTimeout(() => {
+                        if (currentLevel < Object.keys(levels).length) {
+                            soundLevelUp.play();
+                            changeLevel(currentLevel + 1);
+                        } else {
+                            showFeedback(`¡Felicidades! Has completado todos los niveles con ${score} puntos`, "success");
+                        }
+                    }, 2000);
                 }
             }
         }
@@ -1336,8 +1393,23 @@
     resetButton.addEventListener('click', resetCircuit);
     
     // Cargar el primer nivel al iniciar
-    loadLevel(1);
+    changeLevel(1);
 });
+    </script>
+    <script>
+        // Menú hamburguesa
+        document.querySelector('.hamburger-btn').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('active');
+        });
+        
+        // Cerrar menú al hacer clic en enlaces (solo en móvil)
+        document.querySelectorAll('nav ul li a').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    document.querySelector('nav ul').classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -35,4 +35,18 @@
         });
     </script>
 </div>
+<audio id="introSound" src="sound/home.mp3" preload="auto"></audio>
+
+<script>
+    const introSound = document.getElementById('introSound');
+
+    const playIntro = () => {
+        introSound.play().catch(error => {
+            console.log("Error al reproducir el sonido:", error);
+        });
+        document.removeEventListener('click', playIntro);
+    };
+
+    document.addEventListener('click', playIntro);
+</script>
 </body>
