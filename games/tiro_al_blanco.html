@@ -187,7 +187,18 @@
             color: var(--color-dark);
         }
         
+        /* Control de volumen */
+        .volume-control {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1rem;
+        }
         
+        .volume-control i {
+            color: #3498db;
+        }
         
         /* Mensaje para móviles */
         .mobile-warning {
@@ -461,6 +472,12 @@
                 <button id="nextLevelBtn" class="game-button hidden">Siguiente Nivel</button>
             </div>
             
+            <!-- Control de volumen -->
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+            </div>
+            
             <div class="physics-info">
                 <p>Flechas usadas: <span id="shotsUsed">0</span>/<span id="maxShots">3</span></p>
                 <p>Distancia al blanco: <span id="distanceToTarget">0</span> m</p>
@@ -483,6 +500,38 @@
     </footer> 
 
     <script>
+        // Precargar sonidos
+        const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+        const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+        const soundLaunch = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arrow-whoosh-1491.mp3');
+        
+        // Configurar sonidos
+        [soundSuccess, soundError, soundLaunch].forEach(sound => {
+            sound.preload = 'auto';
+            sound.volume = 0.7;
+        });
+
+        // Función para reproducir sonidos
+        function playSound(sound) {
+            try {
+                sound.currentTime = 0; // Rebobinar antes de reproducir
+                const playPromise = sound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Reproducción automática prevenida:", error);
+                        // Activar sonidos con interacción del usuario
+                        document.body.addEventListener('click', function handler() {
+                            sound.play();
+                            document.body.removeEventListener('click', handler);
+                        }, { once: true });
+                    });
+                }
+            } catch (e) {
+                console.log("Error con sonido:", e);
+            }
+        }
+
         // Configuración del juego
         const levels = [
             { 
@@ -547,11 +596,24 @@
         const distanceDisplay = document.getElementById('distanceToTarget');
         const mobileWarning = document.getElementById('mobile-warning');
         const continueMobileBtn = document.getElementById('continue-mobile');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        // Control de volumen
+        volumeSlider.addEventListener('input', function() {
+            const volume = parseFloat(this.value);
+            soundSuccess.volume = volume;
+            soundError.volume = volume;
+            soundLaunch.volume = volume;
+        });
 
         // Mostrar advertencia en móviles
         function checkMobile() {
             if (/Mobi|Android/i.test(navigator.userAgent)) {
                 mobileWarning.style.display = 'flex';
+                // Activar sonidos con la primera interacción del usuario
+                soundSuccess.play().then(() => soundSuccess.pause()).catch(e => console.log(e));
+                soundError.play().then(() => soundError.pause()).catch(e => console.log(e));
+                soundLaunch.play().then(() => soundLaunch.pause()).catch(e => console.log(e));
             }
         }
 
@@ -571,6 +633,10 @@
         powerSlider.addEventListener('input', updateSliderValues);
         launchBtn.addEventListener('click', launchArrow);
         nextLevelBtn.addEventListener('click', nextLevel);
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            document.getElementById('successMessage').classList.add('hidden');
+            nextLevel();
+        });
 
         // Función para redimensionar el canvas
         function resizeCanvas() {
@@ -915,6 +981,9 @@
             powerSlider.disabled = true;
             launchBtn.disabled = true;
             
+            // Reproducir sonido de lanzamiento
+            playSound(soundLaunch);
+            
             function animate() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
                 drawScene(level);
@@ -926,11 +995,15 @@
                 drawArrow(x, y, angle);
                 
                 if(checkTreeCollision(x, y)) {
+                    // Reproducir sonido de error al chocar con árbol
+                    playSound(soundError);
                     endShot(false);
                     return;
                 }
                 
                 if(checkTargetCollision(x, y, level)) {
+                    // Reproducir sonido de éxito al acertar
+                    playSound(soundSuccess);
                     endShot(true);
                     return;
                 }
@@ -1043,8 +1116,8 @@
             
             if(hit) {
                 gameActive = false;
-                nextLevelBtn.classList.remove('hidden');
-                launchBtn.disabled = true;
+                // Mostrar mensaje de éxito
+                document.getElementById('successMessage').classList.remove('hidden');
             } else if(shotsUsed >= levels[currentLevel].maxShots) {
                 gameActive = false;
                 launchBtn.disabled = true;
@@ -1107,34 +1180,6 @@
             
             initLevel(currentLevel);
         }
-        function endShot(hit) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
-    
-    if(gameActive) {
-        angleSlider.disabled = false;
-        powerSlider.disabled = false;
-        launchBtn.disabled = false;
-    }
-    
-    if(hit) {
-        gameActive = false;
-        // Mostrar mensaje de éxito en lugar del botón de siguiente nivel directamente
-        document.getElementById('successMessage').classList.remove('hidden');
-    } else if(shotsUsed >= levels[currentLevel].maxShots) {
-        gameActive = false;
-        launchBtn.disabled = true;
-    }
-    
-    drawScene(levels[currentLevel]);
-    drawTrajectory();
-}
-// Agregar esto junto con los otros event listeners
-document.getElementById('continueBtn').addEventListener('click', function() {
-    document.getElementById('successMessage').classList.add('hidden');
-    nextLevel();
-});
-
     </script>
 
     <script>
