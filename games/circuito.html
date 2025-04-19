@@ -3,1023 +3,1341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enciende el Laboratorio</title>
+    <title>Juego de Circuitos - Física Interactiva</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a2e;
-            color: #e6e6e6;
+        /* Estilos generales */
+        :root {
+            --color-primary: #3498db;
+            --color-secondary: #e74c3c;
+            --color-success: #2ecc71;
+            --color-error: #e74c3c;
+            --color-warning: #f39c12;
+            --color-text: #2c3e50;
+            --color-light: #ecf0f1;
+            --color-dark: #34495e;
+            --color-gray: #95a5a6;
+            --color-bg: #f5f7fa;
+            --color-circuit-bg: #f8f9fa;
+            --color-wire: #7f8c8d;
+            --color-battery: #f1c40f;
+            --color-resistor: #e67e22;
+            --color-bulb-off: #bdc3c7;
+            --color-bulb-on: #f1c40f;
+            --color-switch: #9b59b6;
+            --color-led-off: #95a5a6;
+            --color-led-on: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
-
-        header {
-            background-color: #16213e;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            margin: 0;
-            color: #f8bb22;
-            text-shadow: 0 0 10px rgba(248, 187, 34, 0.5);
-        }
-
-        .game-container {
-            display: flex;
-            flex: 1;
-            padding: 1rem;
-            gap: 1rem;
-        }
-
-        .components-panel {
-            width: 200px;
-            background-color: #0f3460;
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        .component {
-            background-color: #2d4059;
+            
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
             color: white;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            cursor: grab;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Contenido principal */
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+            position: relative;
+        }
+        
+        /* Estilos para la advertencia móvil */
+        .mobile-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        
+        .warning-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            user-select: none;
-            -webkit-user-drag: element;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-
-        .component:hover {
+        
+        .warning-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: var(--color-warning);
+        }
+        
+        .warning-content h3 {
+            color: var(--color-dark);
+            margin-bottom: 10px;
+        }
+        
+        .warning-content p {
+            color: var(--color-text);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .btn-continue {
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-continue:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            background-color: #3a4e6f;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
+        
+        /* Estilos del juego */
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .game-container {
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 25px;
+        }
+        
+        .game-container h1 {
+            color: var(--color-dark);
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .level-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .level-btn:hover:not(.active) {
+            background-color: #d6eaf8;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .stat {
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+        
+        .instructions {
+            color: var(--color-text);
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: var(--color-light);
+            border-radius: 8px;
+        }
+        
+        /* Área de juego de circuitos */
+        .circuit-game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .circuit-board {
+            width: 100%;
+            min-height: 300px;
+            background-color: var(--color-circuit-bg);
+            border-radius: 10px;
+            border: 2px dashed var(--color-gray);
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .circuit-components {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--color-light);
+            border-radius: 10px;
+        }
+        
+        .component {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            position: relative;
+        }
+        
+        .component i {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
         .component:active {
             cursor: grabbing;
         }
-
-        .workspace {
-            flex: 1;
-            background-color: #0f3460;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        
+        .component:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
-
-        #circuit-canvas {
-            width: 100%;
-            height: 100%;
-            background-color: #0a1a2e;
+        
+        .component.dragging {
+            opacity: 0.8;
+            transform: scale(1.05);
         }
-
-        .info-panel {
-            width: 250px;
-            background-color: #0f3460;
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        
+        .component.battery {
+            background: linear-gradient(135deg, var(--color-battery), #e67e22);
+        }
+        
+        .component.resistor {
+            background: linear-gradient(135deg, var(--color-resistor), #d35400);
+        }
+        
+        .component.bulb {
+            background: linear-gradient(135deg, var(--color-bulb-off), #95a5a6);
+        }
+        
+        .component.bulb.on {
+            background: linear-gradient(135deg, var(--color-bulb-on), #f39c12);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+        }
+        
+        .component.switch {
+            background: linear-gradient(135deg, var(--color-switch), #8e44ad);
+        }
+        
+        .component.switch.on {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+        
+        .component.wire {
+            background: linear-gradient(135deg, var(--color-wire), #34495e);
+        }
+        
+        .component.led {
+            background: linear-gradient(135deg, var(--color-led-off), #7f8c8d);
+        }
+        
+        .component.led.on {
+            background: linear-gradient(135deg, var(--color-led-on), #27ae60);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.7);
+        }
+        
+        /* Componentes colocados en el circuito */
+        .placed-component {
+            position: absolute;
             display: flex;
             flex-direction: column;
-        }
-
-        .controls {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        button {
-            background-color: #f8bb22;
-            color: #1a1a2e;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-
-        button:hover {
-            background-color: #ffd166;
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .level-info {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: #2d4059;
-            border-radius: 4px;
-        }
-
-        .circuit-info {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            background-color: #2d4059;
-            border-radius: 4px;
-            min-height: 100px;
-        }
-
-        .energy-bar {
-            height: 10px;
-            background-color: #333;
-            border-radius: 5px;
-            margin-top: 0.5rem;
-            overflow: hidden;
-        }
-
-        .energy-level {
-            height: 100%;
-            background-color: #f8bb22;
-            width: 100%;
-            transition: width 0.3s;
-        }
-
-        .success-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(46, 125, 50, 0.9);
-            color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            text-align: center;
-            z-index: 100;
-            box-shadow: 0 0 20px rgba(46, 125, 50, 0.7);
-            display: none;
-        }
-
-        .wire {
-            position: absolute;
-            background-color: #f8bb22;
-            height: 4px;
-            transform-origin: left center;
-            z-index: 1;
-        }
-
-        .component-image {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            z-index: 2;
             cursor: move;
-            user-select: none;
-            background-color: #2d4059;
-            border-radius: 8px;
+            z-index: 10;
+        }
+        
+        .placed-component i {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .placed-component .component-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--color-dark);
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        
+        .placed-component.bulb.on {
+            animation: bulbGlow 0.5s infinite alternate;
+        }
+
+        .placed-component.bulb.on i {
+            color: #ffeb3b;
+            text-shadow: 0 0 10px #ffeb3b, 
+                        0 0 20px #ffeb3b, 
+                        0 0 30px #ffeb3b;
+        }
+
+        .placed-component.led.on i {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00, 
+                        0 0 10px #00ff00;
+        }
+
+        @keyframes bulbGlow {
+            from {
+                filter: drop-shadow(0 0 5px rgba(255, 235, 59, 0.7));
+            }
+            to {
+                filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.9));
+            }
         }
 
         .connection-point {
-            position: absolute;
             width: 12px;
             height: 12px;
-            background-color: #f8bb22;
+            background-color: var(--color-primary);
             border-radius: 50%;
-            z-index: 3;
+            position: absolute;
+            z-index: 20;
             cursor: pointer;
+            border: 2px solid white;
         }
-
+        
         .connection-point:hover {
             transform: scale(1.3);
         }
-
-        .bulb-on {
-            color: yellow;
-            text-shadow: 0 0 10px yellow;
-            animation: glow 0.5s infinite alternate;
-        }
-
-        .led-on {
-            color: red;
-            text-shadow: 0 0 10px red;
-            animation: glow 0.5s infinite alternate;
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 5px currentColor;
-            }
-            to {
-                text-shadow: 0 0 20px currentColor;
-            }
+        
+        .wire-connection {
+            position: absolute;
+            background-color: var(--color-wire);
+            height: 4px;
+            transform-origin: left center;
+            z-index: 5;
         }
         
-        .reveal-button {
-            background-color: #4CAF50;
+        .circuit-info {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--color-light);
+            padding: 15px;
+            border-radius: 8px;
             margin-top: 10px;
         }
         
-        .solution-image {
-            max-width: 100%;
-            margin-top: 10px;
-            display: none;
+        .circuit-value {
+            text-align: center;
+        }
+        
+        .circuit-value h3 {
+            font-size: 14px;
+            color: var(--color-gray);
+            margin-bottom: 5px;
+        }
+        
+        .circuit-value p {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--color-dark);
+        }
+        
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--color-light);
             border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .energy-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-success), var(--color-warning));
+            width: 100%;
+            transition: width 0.5s;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-check {
+            background: linear-gradient(135deg, var(--color-success), #27ae60);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: white;
+            color: var(--color-dark);
+            border: 2px solid var(--color-dark);
+        }
+        
+        .game-feedback {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .feedback-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--color-success);
+            display: block;
+        }
+        
+        .feedback-error {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--color-error);
+            display: block;
+        }
+        
+        .feedback-warning {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--color-warning);
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--color-dark), #2c3e50);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Media queries responsive */
+        @media (max-width: 768px) {
+            .mobile-warning {
+                display: flex;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .hamburger-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                display: none;
+            }
+            
+            nav.active {
+                display: block;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .game-container {
+                padding: 15px;
+            }
+            
+            .game-container h1 {
+                font-size: 24px;
+            }
+            
+            .level-selector {
+                flex-wrap: wrap;
+            }
+            
+            .level-btn {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .stat {
+                font-size: 14px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            
+            .circuit-board {
+                min-height: 250px;
+                padding: 15px;
+            }
+            
+            .circuit-components {
+                padding: 15px;
+                gap: 10px;
+            }
+            
+            .component {
+                width: 70px;
+                height: 70px;
+                font-size: 12px;
+            }
+            
+            .component i {
+                font-size: 25px;
+            }
+            
+            .circuit-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>🔌 Enciende el Laboratorio</h1>
+        <div class="header-container">
+            <a href="../home.html" class="logo">
+                <i class="fas fa-atom"></i>
+                <span>Física Interactiva</span>
+            </a>
+            <button class="hamburger-btn" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
+                    <li><a href="../games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="../calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <div class="game-container">
-        <div class="components-panel">
-            <h3>Componentes</h3>
-            <div class="component" draggable="true" data-type="battery" data-voltage="9">Batería (9V)</div>
-            <div class="component" draggable="true" data-type="resistor" data-resistance="100">Resistencia (100Ω)</div>
-            <div class="component" draggable="true" data-type="resistor" data-resistance="220">Resistencia (220Ω)</div>
-            <div class="component" draggable="true" data-type="bulb" data-resistance="150">Foco (150Ω)</div>
-            <div class="component" draggable="true" data-type="led" data-resistance="50">LED (50Ω)</div>
-            <div class="component" draggable="true" data-type="switch" data-resistance="0">Interruptor</div>
-            <button id="reveal-solution" class="reveal-button">Revelar Solución</button>
-            <img id="solution-image" class="solution-image" src="" alt="Solución del nivel">
-        </div>
-
-        <div class="workspace">
-            <canvas id="circuit-canvas"></canvas>
-            
-            <div class="success-message">
-                <h2>¡Circuito Correcto!</h2>
-                <p>Has completado el nivel satisfactoriamente.</p>
-                <button id="next-level-btn">Siguiente Nivel</button>
+    <div class="mobile-warning">
+        <div class="warning-content">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
             </div>
-        </div>
-
-        <div class="info-panel">
-            <div class="level-info">
-                <h3>Nivel 1</h3>
-                <p id="level-description">Objetivo: Enciende el foco conectando una batería y una resistencia.</p>
-                <div class="energy-bar">
-                    <div class="energy-level" id="energy-level"></div>
-                </div>
-                <p>Energía: <span id="energy-value">100</span>%</p>
-            </div>
-
-            <div class="circuit-info">
-                <h3>Información del Circuito</h3>
-                <p id="circuit-status">Circuito abierto</p>
-                <p id="voltage-info">Voltaje: 0V</p>
-                <p id="current-info">Corriente: 0A</p>
-                <p id="resistance-info">Resistencia: 0Ω</p>
-            </div>
-
-            <div class="controls">
-                <button id="test-circuit">Probar Circuito</button>
-                <button id="reset-circuit">Reiniciar</button>
-            </div>
+            <h3>Experiencia optimizada para desktop</h3>
+            <p>Este juego está diseñado para una mejor experiencia en pantallas más grandes. Puedes continuar en móvil, pero algunas funciones pueden verse limitadas.</p>
+            <button class="btn-continue">Continuar de todos modos</button>
         </div>
     </div>
 
+    <div class="container">
+        <a href="../games.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver a juegos</a>
+        
+        <div class="game-container">
+            <h1><i class="fas fa-bolt"></i> Enciende el Laboratorio</h1>
+            
+            <div class="level-selector">
+                <button class="level-btn active" data-level="1">Nivel 1</button>
+                <button class="level-btn" data-level="2">Nivel 2</button>
+                <button class="level-btn" data-level="3">Nivel 3</button>
+                <button class="level-btn" data-level="4">Nivel 4</button>
+            </div>
+            
+            <div class="game-stats">
+                <div class="stat">Energía: <span id="energy">100</span>%</div>
+                <div class="stat">Intentos: <span id="attempts">0</span></div>
+            </div>
+            
+            <div class="instructions" id="instructions">
+                Arrastra componentes al área de trabajo y conéctalos para completar el circuito. El foco debe encenderse cuando el circuito esté correctamente armado.
+            </div>
+            
+            <div class="circuit-board" id="circuit-board">
+                <!-- Aquí se colocan los componentes del circuito -->
+            </div>
+            
+            <div class="circuit-info">
+                <div class="circuit-value">
+                    <h3>Voltaje (V)</h3>
+                    <p id="voltage">0 V</p>
+                </div>
+                <div class="circuit-value">
+                    <h3>Corriente (I)</h3>
+                    <p id="current">0 A</p>
+                </div>
+                <div class="circuit-value">
+                    <h3>Resistencia (R)</h3>
+                    <p id="resistance">0 Ω</p>
+                </div>
+            </div>
+            
+            <div class="energy-bar">
+                <div class="energy-level" id="energy-level"></div>
+            </div>
+            
+            <div class="circuit-components">
+                <div class="component battery" draggable="true" data-type="battery" data-voltage="9">
+                    <i class="fas fa-battery-full"></i>
+                    <span>Batería 9V</span>
+                </div>
+                <div class="component resistor" draggable="true" data-type="resistor" data-resistance="100">
+                    <i class="fas fa-wave-square"></i>
+                    <span>Resistencia 100Ω</span>
+                </div>
+                <div class="component bulb" draggable="true" data-type="bulb" data-resistance="50">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Foco</span>
+                </div>
+                <div class="component switch" draggable="true" data-type="switch">
+                    <i class="fas fa-toggle-off"></i>
+                    <span>Interruptor</span>
+                </div>
+                <div class="component wire" draggable="true" data-type="wire">
+                    <i class="fas fa-link"></i>
+                    <span>Cable</span>
+                </div>
+                <div class="component led" draggable="true" data-type="led" data-resistance="20">
+                    <i class="fas fa-circle"></i>
+                    <span>LED</span>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button class="btn btn-check" id="check-circuit"><i class="fas fa-bolt"></i> Encender</button>
+                <button class="btn btn-reset" id="reset-circuit"><i class="fas fa-redo"></i> Reiniciar</button>
+            </div>
+            
+            <div class="game-feedback" id="game-feedback"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 Jorge Alberto · Física Interactiva · Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configuración del juego
-            const canvas = document.getElementById('circuit-canvas');
-            const ctx = canvas.getContext('2d');
-            const workspace = document.querySelector('.workspace');
-            const componentsPanel = document.querySelector('.components-panel');
-            const testButton = document.getElementById('test-circuit');
-            const resetButton = document.getElementById('reset-circuit');
-            const nextLevelButton = document.getElementById('next-level-btn');
-            const successMessage = document.querySelector('.success-message');
-            const circuitStatus = document.getElementById('circuit-status');
-            const voltageInfo = document.getElementById('voltage-info');
-            const currentInfo = document.getElementById('current-info');
-            const resistanceInfo = document.getElementById('resistance-info');
-            const energyLevel = document.getElementById('energy-level');
-            const energyValue = document.getElementById('energy-value');
-            const levelDescription = document.getElementById('level-description');
-            const revealButton = document.getElementById('reveal-solution');
-            const solutionImage = document.getElementById('solution-image');
-
-            // Ajustar tamaño del canvas
-            function resizeCanvas() {
-                canvas.width = workspace.clientWidth;
-                canvas.height = workspace.clientHeight;
-                redrawCanvas();
+    // Ocultar advertencia móvil si el usuario continúa
+    document.querySelector('.btn-continue').addEventListener('click', function() {
+        document.querySelector('.mobile-warning').style.display = 'none';
+    });
+    
+    // Menú hamburguesa
+    document.querySelector('.hamburger-btn').addEventListener('click', function() {
+        document.querySelector('nav ul').classList.toggle('active');
+    });
+    
+    // Cerrar menú al hacer clic en enlaces (solo en móvil)
+    document.querySelectorAll('nav ul li a').forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                document.querySelector('nav ul').classList.remove('active');
             }
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // Variables del juego
-            let components = [];
-            let wires = [];
-            let draggedComponent = null;
-            let draggedWire = null;
-            let connectionStart = null;
-            let energy = 100;
-            let currentLevel = 1;
-            let isCircuitComplete = false;
-            let switchStates = {};
-
-            // Imágenes de componentes
-            const componentImages = {
-                battery: '🔋',
-                resistor: '🟠',
-                bulb: '💡',
-                led: '🔴',
-                switch: '🔘'
-            };
-
-            // Soluciones de los niveles (imágenes o descripciones)
-            const levelSolutions = [
-                "https://i.imgur.com/JQ6Yl5n.png", // Nivel 1
-                "https://i.imgur.com/8X9vZzF.png", // Nivel 2
-                "https://i.imgur.com/pL3V4dT.png", // Nivel 3
-                "https://i.imgur.com/mW7cGqQ.png"  // Nivel 4
-            ];
-
-            // Niveles del juego
-            const levels = [
-                {
-                    description: "Enciende el foco conectando una batería y una resistencia.",
-                    requiredComponents: ['battery', 'resistor', 'bulb'],
-                    minResistance: 100,
-                    maxResistance: 300,
-                    checkBulbInPath: true
-                },
-                {
-                    description: "Usa un interruptor para controlar el flujo de corriente.",
-                    requiredComponents: ['battery', 'resistor', 'bulb', 'switch'],
-                    minResistance: 100,
-                    maxResistance: 300,
-                    checkBulbInPath: true
-                },
-                {
-                    description: "Crea un circuito en paralelo para encender dos focos.",
-                    requiredComponents: ['battery', 'resistor', 'bulb', 'bulb'],
-                    minResistance: 100,
-                    maxResistance: 300,
-                    parallelRequired: true,
-                    checkBulbInPath: true
-                },
-                {
-                    description: "Protege un LED con una resistencia específica (entre 200Ω y 250Ω).",
-                    requiredComponents: ['battery', 'resistor', 'led'],
-                    minResistance: 200,
-                    maxResistance: 250,
-                    checkBulbInPath: false
-                }
-            ];
-
-            // Actualizar información del nivel
-            function updateLevelInfo() {
-                const levelInfo = document.querySelector('.level-info h3');
-                levelInfo.textContent = `Nivel ${currentLevel}`;
-                levelDescription.textContent = levels[currentLevel - 1].description;
-                solutionImage.src = levelSolutions[currentLevel - 1];
-                solutionImage.style.display = 'none';
-            }
-
-            // Componentes arrastrables
-            const draggableComponents = document.querySelectorAll('.component[draggable="true"]');
-            draggableComponents.forEach(component => {
-                component.addEventListener('dragstart', function(e) {
-                    draggedComponent = {
-                        type: this.dataset.type,
-                        voltage: this.dataset.voltage ? parseFloat(this.dataset.voltage) : 0,
-                        resistance: this.dataset.resistance ? parseFloat(this.dataset.resistance) : 0,
-                        element: this
-                    };
-                    e.dataTransfer.setData('text/plain', 'component');
-                });
-            });
-
-            // Permitir soltar componentes en el área de trabajo
-            workspace.addEventListener('dragover', function(e) {
-                e.preventDefault();
-            });
-
-            workspace.addEventListener('drop', function(e) {
-                e.preventDefault();
-                if (!draggedComponent) return;
-
-                const rect = workspace.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-
-                addComponent(draggedComponent.type, x, y, draggedComponent.voltage, draggedComponent.resistance);
-                draggedComponent = null;
-            });
-
-            // Añadir componente al área de trabajo
-            function addComponent(type, x, y, voltage = 0, resistance = 0) {
-                const componentId = 'comp-' + Date.now() + Math.random().toString(36).substr(2, 5);
-                const component = {
-                    id: componentId,
-                    type: type,
-                    x: x,
-                    y: y,
-                    voltage: voltage,
-                    resistance: resistance,
-                    connections: [],
-                    input: null,
-                    output: null
-                };
-
-                // Crear elemento visual
-                const componentElement = document.createElement('div');
-                componentElement.className = 'component-image';
-                componentElement.textContent = componentImages[type] || '⚙️';
-                componentElement.style.left = `${x - 20}px`;
-                componentElement.style.top = `${y - 20}px`;
-                componentElement.dataset.id = componentId;
-                workspace.appendChild(componentElement);
-
-                // Puntos de conexión
-                const connection1 = createConnectionPoint(componentId, x - 20, y, 'input');
-                const connection2 = createConnectionPoint(componentId, x + 20, y, 'output');
-
-                component.input = connection1;
-                component.output = connection2;
-
-                // Hacer el componente arrastrable
-                makeDraggable(componentElement, component);
-
-                // Si es un interruptor, añadir evento de clic
-                if (type === 'switch') {
-                    switchStates[componentId] = false;
-                    componentElement.addEventListener('click', function(e) {
-                        if (e.target.classList.contains('connection-point')) return;
-                        
-                        switchStates[componentId] = !switchStates[componentId];
-                        component.resistance = switchStates[componentId] ? 0.1 : 1000;
-                        componentElement.style.backgroundColor = switchStates[componentId] ? '#4CAF50' : '#2d4059';
-                        
-                        if (isCircuitComplete) {
-                            const result = testCircuit();
-                            if (!result.success) {
-                                isCircuitComplete = false;
-                                circuitStatus.textContent = "Interruptor abierto - circuito incompleto";
-                                circuitStatus.style.color = "#F44336";
-                                turnOffAllLights();
-                            }
-                        }
-                    });
-                }
-
-                components.push(component);
-                return component;
-            }
-
-            // Crear punto de conexión
-            function createConnectionPoint(componentId, x, y, type) {
-                const connectionElement = document.createElement('div');
-                connectionElement.className = 'connection-point';
-                connectionElement.style.left = `${x - 6}px`;
-                connectionElement.style.top = `${y - 6}px`;
-                connectionElement.dataset.componentId = componentId;
-                connectionElement.dataset.type = type;
-                workspace.appendChild(connectionElement);
-
-                // Eventos para conectar cables
-                connectionElement.addEventListener('mousedown', startWireConnection);
-                connectionElement.addEventListener('mouseup', endWireConnection);
-
-                return {
-                    element: connectionElement,
-                    x: x,
-                    y: y,
-                    type: type,
-                    connectedTo: null,
-                    wires: []
-                };
-            }
-
-            // Hacer componente arrastrable
-            function makeDraggable(element, componentData) {
-                let offsetX, offsetY, isDragging = false;
-
-                element.addEventListener('mousedown', function(e) {
-                    if (e.target.classList.contains('connection-point')) return;
-
-                    isDragging = true;
-                    offsetX = e.clientX - parseFloat(element.style.left);
-                    offsetY = e.clientY - parseFloat(element.style.top);
-                    element.style.cursor = 'grabbing';
-                    e.preventDefault();
-                });
-
-                document.addEventListener('mousemove', function(e) {
-                    if (!isDragging) return;
-
-                    const rect = workspace.getBoundingClientRect();
-                    let newX = e.clientX - offsetX;
-                    let newY = e.clientY - offsetY;
-
-                    // Limitar al área de trabajo
-                    newX = Math.max(0, Math.min(newX, rect.width - 40));
-                    newY = Math.max(0, Math.min(newY, rect.height - 40));
-
-                    element.style.left = `${newX}px`;
-                    element.style.top = `${newY}px`;
-
-                    // Actualizar posición en el modelo
-                    componentData.x = newX + 20;
-                    componentData.y = newY + 20;
-
-                    // Actualizar puntos de conexión
-                    updateConnectionPoints(componentData);
-
-                    // Redibujar cables conectados
-                    redrawWires();
-                });
-
-                document.addEventListener('mouseup', function() {
-                    isDragging = false;
-                    element.style.cursor = 'move';
-                });
-            }
-
-            // Actualizar puntos de conexión al mover componente
-            function updateConnectionPoints(component) {
-                // Actualizar posición de los puntos de conexión
-                component.input.x = component.x - 20;
-                component.input.y = component.y;
-                component.output.x = component.x + 20;
-                component.output.y = component.y;
-                
-                // Actualizar elementos visuales
-                component.input.element.style.left = `${component.input.x - 6}px`;
-                component.input.element.style.top = `${component.input.y - 6}px`;
-                component.output.element.style.left = `${component.output.x - 6}px`;
-                component.output.element.style.top = `${component.output.y - 6}px`;
-
-                // Actualizar cables conectados
-                redrawWires();
-            }
-
-            // Iniciar conexión de cable
-            function startWireConnection(e) {
-                e.stopPropagation();
-                connectionStart = {
-                    componentId: this.dataset.componentId,
-                    type: this.dataset.type,
-                    x: parseFloat(this.style.left) + 6,
-                    y: parseFloat(this.style.top) + 6,
-                    element: this
-                };
-
-                // Crear cable temporal
-                draggedWire = document.createElement('div');
-                draggedWire.className = 'wire';
-                draggedWire.style.left = `${connectionStart.x}px`;
-                draggedWire.style.top = `${connectionStart.y}px`;
-                workspace.appendChild(draggedWire);
-
-                // Deshabilitar eventos del documento mientras se arrastra
-                document.addEventListener('mousemove', updateDraggedWire);
-                document.addEventListener('mouseup', cancelWireConnection);
-            }
-
-            // Actualizar cable mientras se arrastra
-            function updateDraggedWire(e) {
-                if (!draggedWire) return;
-                
-                const rect = workspace.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const dx = x - connectionStart.x;
-                const dy = y - connectionStart.y;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-                draggedWire.style.width = `${length}px`;
-                draggedWire.style.transform = `rotate(${angle}deg)`;
-            }
-
-            // Cancelar conexión de cable
-            function cancelWireConnection() {
-                if (draggedWire) {
-                    draggedWire.remove();
-                    draggedWire = null;
-                }
-                connectionStart = null;
-                
-                // Remover listeners temporales
-                document.removeEventListener('mousemove', updateDraggedWire);
-                document.removeEventListener('mouseup', cancelWireConnection);
-            }
-
-            // Terminar conexión de cable
-            function endWireConnection(e) {
-                e.stopPropagation();
-                if (!connectionStart || !draggedWire) return;
-
-                const connectionEnd = {
-                    componentId: this.dataset.componentId,
-                    type: this.dataset.type,
-                    x: parseFloat(this.style.left) + 6,
-                    y: parseFloat(this.style.top) + 6,
-                    element: this
-                };
-
-                // Verificar que no sea el mismo punto de conexión
-                if (connectionStart.componentId === connectionEnd.componentId) {
-                    cancelWireConnection();
-                    return;
-                }
-
-                // Verificar que no sean del mismo tipo (input-input o output-output)
-                if (connectionStart.type === connectionEnd.type) {
-                    cancelWireConnection();
-                    alert("No puedes conectar dos entradas o dos salidas juntas.");
-                    return;
-                }
-
-                // Verificar que no sean del mismo componente (a menos que sea un interruptor)
-                const startComponent = components.find(c => c.id === connectionStart.componentId);
-                const endComponent = components.find(c => c.id === connectionEnd.componentId);
-                
-                if (startComponent && endComponent && startComponent.id === endComponent.id && 
-                    startComponent.type !== 'switch') {
-                    cancelWireConnection();
-                    alert("No puedes conectar un componente a sí mismo (excepto interruptores).");
-                    return;
-                }
-
-                // Verificar si ya existe una conexión entre estos puntos
-                const startPoint = connectionStart.type === 'input' ? 
-                    startComponent.input : startComponent.output;
-                const endPoint = connectionEnd.type === 'input' ? 
-                    endComponent.input : endComponent.output;
-                
-                if (startPoint.wires.some(w => w.end.componentId === connectionEnd.componentId && 
-                                             w.end.type === connectionEnd.type)) {
-                    cancelWireConnection();
-                    alert("Ya existe una conexión entre estos puntos.");
-                    return;
-                }
-
-                // Crear conexión permanente
-                const wireId = 'wire-' + Date.now() + Math.random().toString(36).substr(2, 5);
-                const wire = {
-                    id: wireId,
-                    start: connectionStart,
-                    end: connectionEnd,
-                    element: draggedWire
-                };
-
-                wires.push(wire);
-                updateWireElement(wire);
-
-                // Registrar conexión en los puntos
-                startPoint.wires.push({
-                    end: { componentId: connectionEnd.componentId, type: connectionEnd.type },
-                    wire: wire
-                });
-                endPoint.wires.push({
-                    end: { componentId: connectionStart.componentId, type: connectionStart.type },
-                    wire: wire
-                });
-
-                // Registrar conexión en los componentes
-                if (connectionStart.type === 'output') {
-                    // start -> end
-                    startComponent.connections.push({
-                        to: connectionEnd.componentId,
-                        type: 'output',
-                        connectedTo: connectionEnd.type
-                    });
-                    endComponent.connections.push({
-                        from: connectionStart.componentId,
-                        type: 'input',
-                        connectedFrom: connectionStart.type
-                    });
-                } else {
-                    // end -> start
-                    endComponent.connections.push({
-                        to: connectionStart.componentId,
-                        type: 'output',
-                        connectedTo: connectionStart.type
-                    });
-                    startComponent.connections.push({
-                        from: connectionEnd.componentId,
-                        type: 'input',
-                        connectedFrom: connectionEnd.type
-                    });
-                }
-
-                // Remover listeners temporales
-                document.removeEventListener('mousemove', updateDraggedWire);
-                document.removeEventListener('mouseup', cancelWireConnection);
-
-                draggedWire = null;
-                connectionStart = null;
-            }
-
-            // Actualizar elemento visual del cable
-            function updateWireElement(wire) {
-                const dx = wire.end.x - wire.start.x;
-                const dy = wire.end.y - wire.start.y;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-                wire.element.style.width = `${length}px`;
-                wire.element.style.left = `${wire.start.x}px`;
-                wire.element.style.top = `${wire.start.y}px`;
-                wire.element.style.transform = `rotate(${angle}deg)`;
-            }
-
-            // Redibujar todos los cables
-            function redrawWires() {
-                wires.forEach(wire => {
-                    // Actualizar posiciones de inicio/fin
-                    const startComponent = components.find(c => c.id === wire.start.componentId);
-                    const endComponent = components.find(c => c.id === wire.end.componentId);
-                    
-                    if (startComponent && endComponent) {
-                        wire.start.x = wire.start.type === 'input' ? 
-                            startComponent.input.x : startComponent.output.x;
-                        wire.start.y = wire.start.type === 'input' ? 
-                            startComponent.input.y : startComponent.output.y;
-                        wire.end.x = wire.end.type === 'input' ? 
-                            endComponent.input.x : endComponent.output.x;
-                        wire.end.y = wire.end.type === 'input' ? 
-                            endComponent.input.y : endComponent.output.y;
-                        
-                        updateWireElement(wire);
-                    }
-                });
-            }
-
-            // Redibujar canvas
-            function redrawCanvas() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-
-            // Probar circuito
-            testButton.addEventListener('click', function() {
-                if (isCircuitComplete) return;
-                
-                const result = testCircuit();
-                if (result.success) {
-                    circuitStatus.textContent = "¡Circuito correcto!";
-                    circuitStatus.style.color = "#4CAF50";
-                    successMessage.style.display = 'block';
-                    isCircuitComplete = true;
-                    
-                    // Encender focos/LEDs
-                    turnOnLights(result.path);
-                } else {
-                    circuitStatus.textContent = result.message;
-                    circuitStatus.style.color = "#F44336";
-                    
-                    // Reducir energía por intento fallido
-                    energy = Math.max(0, energy - 10);
-                    energyLevel.style.width = `${energy}%`;
-                    energyValue.textContent = `${energy}%`;
-                    
-                    if (energy <= 0) {
-                        setTimeout(() => {
-                            alert("¡Te quedaste sin energía! Reiniciando nivel...");
-                            resetCircuit();
-                            energy = 100;
-                            energyLevel.style.width = '100%';
-                            energyValue.textContent = '100';
-                        }, 500);
-                    }
-                }
-            });
-
-            // Función para probar circuito
-            function testCircuit() {
-                const level = levels[currentLevel - 1];
-                const battery = components.find(c => c.type === 'battery');
-                
-                if (!battery) {
-                    return { success: false, message: "No hay batería en el circuito" };
-                }
-
-                // Verificar si hay al menos un foco o LED en los componentes
-                const hasBulbOrLED = components.some(c => c.type === 'bulb' || c.type === 'led');
-                if (level.checkBulbInPath && !hasBulbOrLED) {
-                    return { 
-                        success: false, 
-                        message: "No has colocado ningún foco o LED en el circuito" 
-                    };
-                }
-
-                // Buscar caminos válidos desde la batería
-                const result = findValidPath(battery, level);
-                
-                if (result.success) {
-                    // Calcular valores del circuito
-                    const totalResistance = result.totalResistance;
-                    const voltage = battery.voltage;
-                    const current = voltage / totalResistance;
-                    
-                    // Actualizar panel
-                    voltageInfo.textContent = `Voltaje: ${voltage}V`;
-                    currentInfo.textContent = `Corriente: ${current.toFixed(3)}A`;
-                    resistanceInfo.textContent = `Resistencia: ${totalResistance}Ω`;
-                    
-                    return {
-                        success: true,
-                        voltage: voltage,
-                        current: current,
-                        resistance: totalResistance,
-                        path: result.path
-                    };
-                }
-                
-                return {
-                    success: false,
-                    message: result.message || "El circuito no está cerrado correctamente"
-                };
-            }
-
-            // Función para encontrar un camino válido en el circuito
-            function findValidPath(battery, level) {
-                const visited = new Set();
-                const queue = [];
-                let hasBulbInPath = false;
-                let totalResistance = 0;
-                let path = [];
-
-                // Iniciar búsqueda desde las salidas de la batería
-                battery.connections
-                    .filter(c => c.type === 'output')
-                    .forEach(conn => {
-                        queue.push({
-                            componentId: conn.to,
-                            from: battery.id,
-                            currentPath: [battery.id],
-                            currentResistance: 0,
-                            hasBulb: false
-                        });
-                    });
-
-                while (queue.length > 0) {
-                    const current = queue.shift();
-                    const component = components.find(c => c.id === current.componentId);
-                    
-                    if (!component || visited.has(component.id)) continue;
-                    visited.add(component.id);
-
-                    // Actualizar propiedades del camino
-                    const newResistance = current.currentResistance + component.resistance;
-                    const newHasBulb = current.hasBulb || component.type === 'bulb' || component.type === 'led';
-                    const newPath = [...current.currentPath, component.id];
-
-                    // Verificar si regresa a la batería (circuito cerrado)
-                    const returnsToBattery = component.connections
-                        .filter(c => c.type === 'input')
-                        .some(input => input.from === battery.id);
-
-                    if (returnsToBattery) {
-                        // Verificar requisitos del nivel
-                        if (level.checkBulbInPath && !newHasBulb) {
-                            continue; // Saltar si no tiene foco/LED cuando es requerido
-                        }
-
-                        // Verificar resistencia para LEDs
-                        if (component.type === 'led' && 
-                            (newResistance < level.minResistance || newResistance > level.maxResistance)) {
-                            continue;
-                        }
-
-                        // Verificar interruptores abiertos
-                        const hasOpenSwitch = newPath.some(id => {
-                            const comp = components.find(c => c.id === id);
-                            return comp?.type === 'switch' && !switchStates[id];
-                        });
-
-                        if (!hasOpenSwitch) {
-                            // Circuito válido encontrado
-                            return {
-                                success: true,
-                                totalResistance: newResistance,
-                                path: [...newPath, battery.id],
-                                hasBulb: newHasBulb
-                            };
-                        }
-                    }
-
-                    // Explorar conexiones salientes
-                    component.connections
-                        .filter(c => c.type === 'output')
-                        .forEach(conn => {
-                            if (!visited.has(conn.to)) {
-                                queue.push({
-                                    componentId: conn.to,
-                                    from: component.id,
-                                    currentPath: newPath,
-                                    currentResistance: newResistance,
-                                    hasBulb: newHasBulb
-                                });
-                            }
-                        });
-                }
-
-                return { 
-                    success: false,
-                    message: level.checkBulbInPath ? 
-                        "El circuito no incluye un foco o LED para encender" :
-                        "El circuito no está cerrado correctamente"
-                };
-            }
-
-            // Encender focos/LEDs en el camino correcto
-            function turnOnLights(path) {
-                // Primero apagar todos
-                turnOffAllLights();
-                
-                // Encender los que están en el camino
-                path.forEach(componentId => {
-                    const component = components.find(c => c.id === componentId);
-                    if (!component) return;
-                    
-                    const element = document.querySelector(`.component-image[data-id="${componentId}"]`);
-                    if (!element) return;
-                    
-                    if (component.type === 'bulb') {
-                        element.classList.add('bulb-on');
-                    } else if (component.type === 'led') {
-                        element.classList.add('led-on');
-                    }
-                });
-            }
-
-            // Apagar todos los focos/LEDs
-            function turnOffAllLights() {
-                document.querySelectorAll('.bulb-on, .led-on').forEach(el => {
-                    el.classList.remove('bulb-on', 'led-on');
-                });
-            }
-
-            // Reiniciar circuito
-            resetButton.addEventListener('click', resetCircuit);
-
-            function resetCircuit() {
-                // Eliminar todos los componentes visuales
-                document.querySelectorAll('.component-image, .connection-point, .wire').forEach(el => {
-                    el.remove();
-                });
-                
-                // Reiniciar modelos
-                components = [];
-                wires = [];
-                switchStates = {};
-                
-                // Reiniciar información del circuito
-                circuitStatus.textContent = "Circuito abierto";
-                circuitStatus.style.color = "#e6e6e6";
-                voltageInfo.textContent = "Voltaje: 0V";
-                currentInfo.textContent = "Corriente: 0A";
-                resistanceInfo.textContent = "Resistencia: 0Ω";
-                
-                // Apagar todas las luces
-                turnOffAllLights();
-                
-                // Restablecer estado de circuito completo
-                isCircuitComplete = false;
-            }
-
-            // Siguiente nivel
-            nextLevelButton.addEventListener('click', function() {
-                currentLevel++;
-                if (currentLevel > levels.length) {
-                    currentLevel = 1;
-                    alert("¡Felicidades! Has completado todos los niveles.");
-                }
-                
-                updateLevelInfo();
-                resetCircuit();
-                successMessage.style.display = 'none';
-                isCircuitComplete = false;
-                energy = 100;
-                energyLevel.style.width = '100%';
-                energyValue.textContent = '100';
-            });
-
-            // Revelar solución
-            revealButton.addEventListener('click', function() {
-                solutionImage.style.display = solutionImage.style.display === 'none' ? 'block' : 'none';
-            });
-
-            // Inicializar juego
-            updateLevelInfo();
         });
+    });
+    
+    // Variables del juego
+    let currentLevel = 1;
+    let energy = 100;
+    let attempts = 0;
+    let placedComponents = [];
+    let connections = [];
+    let isConnecting = false;
+    
+    // Niveles del juego
+    const levels = {
+        1: {
+            title: "Circuito básico",
+            instructions: "Arrastra una batería, un foco y una resistencia al área de trabajo. Conéctalos para completar el circuito y encender el foco.",
+            requiredComponents: ["battery", "bulb", "resistor"],
+            requiredConnections: 2,
+            voltage: 9,
+            resistance: 150
+        },
+        2: {
+            title: "Circuito con interruptor",
+            instructions: "Arma un circuito con batería, foco y un interruptor. El foco solo debe encenderse cuando el interruptor esté activado.",
+            requiredComponents: ["battery", "bulb", "switch"],
+            requiredConnections: 3,
+            voltage: 9,
+            resistance: 50
+        },
+        3: {
+            title: "Circuito en paralelo",
+            instructions: "Crea un circuito en paralelo con dos focos. Ambos deben encenderse cuando el circuito esté completo.",
+            requiredComponents: ["battery", "bulb", "bulb", "wire"],
+            requiredConnections: 4,
+            voltage: 9,
+            resistance: 25
+        },
+        4: {
+            title: "Circuito con LED",
+            instructions: "Protege un LED con una resistencia adecuada. El LED solo debe encenderse con la resistencia correcta.",
+            requiredComponents: ["battery", "led", "resistor"],
+            requiredConnections: 2,
+            voltage: 9,
+            resistance: 120
+        }
+    };
+    
+    // Elementos del DOM
+    const circuitBoard = document.getElementById('circuit-board');
+    const energyDisplay = document.getElementById('energy');
+    const energyLevel = document.getElementById('energy-level');
+    const attemptsDisplay = document.getElementById('attempts');
+    const instructionsDisplay = document.getElementById('instructions');
+    const voltageDisplay = document.getElementById('voltage');
+    const currentDisplay = document.getElementById('current');
+    const resistanceDisplay = document.getElementById('resistance');
+    const feedbackDisplay = document.getElementById('game-feedback');
+    const checkButton = document.getElementById('check-circuit');
+    const resetButton = document.getElementById('reset-circuit');
+    const levelButtons = document.querySelectorAll('.level-btn');
+    
+    // Event listeners para los botones de nivel
+    levelButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            levelButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            currentLevel = parseInt(this.dataset.level);
+            loadLevel(currentLevel);
+        });
+    });
+    
+    // Cargar nivel
+    function loadLevel(level) {
+        resetCircuit();
+        const levelData = levels[level];
+        document.querySelector('.game-container h1').innerHTML = `<i class="fas fa-bolt"></i> ${levelData.title}`;
+        instructionsDisplay.textContent = levelData.instructions;
+        
+        // Actualizar valores esperados
+        voltageDisplay.textContent = `${levelData.voltage} V`;
+        resistanceDisplay.textContent = `${levelData.resistance} Ω`;
+        currentDisplay.textContent = `${(levelData.voltage / levelData.resistance).toFixed(2)} A`;
+    }
+    
+    // Reiniciar circuito
+    function resetCircuit() {
+        circuitBoard.innerHTML = '';
+        placedComponents = [];
+        connections = [];
+        feedbackDisplay.style.display = 'none';
+        updateEnergy(0); // Restablecer energía solo si es penalización
+    }
+    
+    // Actualizar energía
+    function updateEnergy(change) {
+        energy += change;
+        if (energy > 100) energy = 100;
+        if (energy < 0) energy = 0;
+        
+        energyDisplay.textContent = energy;
+        energyLevel.style.width = `${energy}%`;
+        
+        // Cambiar color según la energía
+        if (energy > 60) {
+            energyLevel.style.background = 'linear-gradient(90deg, var(--color-success), var(--color-warning))';
+        } else if (energy > 30) {
+            energyLevel.style.background = 'linear-gradient(90deg, var(--color-warning), var(--color-error))';
+        } else {
+            energyLevel.style.background = 'var(--color-error)';
+        }
+        
+        if (energy <= 0) {
+            showFeedback("¡Se acabó la energía! Reinicia el juego.", "error");
+            setTimeout(resetCircuit, 2000);
+        }
+    }
+    
+    // Mostrar feedback
+    function showFeedback(message, type) {
+        feedbackDisplay.textContent = message;
+        feedbackDisplay.className = 'game-feedback';
+        feedbackDisplay.classList.add(`feedback-${type}`);
+        feedbackDisplay.style.display = 'block';
+        
+        setTimeout(() => {
+            feedbackDisplay.style.display = 'none';
+        }, 3000);
+    }
+    
+    // Crear componente en el área de trabajo
+    function createPlacedComponent(type, x, y, data) {
+        const component = document.createElement('div');
+        component.className = `placed-component ${type}`;
+        component.style.left = `${x}px`;
+        component.style.top = `${y}px`;
+        component.dataset.type = type;
+        
+        // Configurar según el tipo de componente
+        let iconClass, label;
+        switch(type) {
+            case 'battery':
+                iconClass = 'fas fa-battery-full';
+                label = `${data.voltage}V`;
+                component.dataset.voltage = data.voltage;
+                break;
+            case 'resistor':
+                iconClass = 'fas fa-wave-square';
+                label = `${data.resistance}Ω`;
+                component.dataset.resistance = data.resistance;
+                break;
+            case 'bulb':
+                iconClass = 'fas fa-lightbulb';
+                label = 'Foco';
+                component.dataset.resistance = data.resistance;
+                break;
+            case 'switch':
+                iconClass = 'fas fa-toggle-off';
+                label = 'Interruptor';
+                component.dataset.state = 'off';
+                break;
+            case 'wire':
+                iconClass = 'fas fa-link';
+                label = 'Cable';
+                break;
+            case 'led':
+                iconClass = 'fas fa-circle';
+                label = 'LED';
+                component.dataset.resistance = data.resistance;
+                break;
+        }
+        
+        component.innerHTML = `
+            <i class="${iconClass}"></i>
+            <span class="component-label">${label}</span>
+        `;
+        
+        // Añadir puntos de conexión
+        addConnectionPoints(component);
+        
+        // Hacer el componente arrastrable
+        makeDraggable(component);
+        
+        circuitBoard.appendChild(component);
+        placedComponents.push(component);
+        
+        return component;
+    }
+    
+    // Añadir puntos de conexión a un componente
+    function addConnectionPoints(component) {
+        const type = component.dataset.type;
+        const rect = component.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        
+        // Limpiar puntos de conexión existentes
+        const existingPoints = component.querySelectorAll('.connection-point');
+        existingPoints.forEach(point => point.remove());
+        
+        // Añadir puntos según el tipo de componente
+        if (type === 'battery' || type === 'resistor' || type === 'wire') {
+            // Dos puntos de conexión (izquierda y derecha)
+            const leftPoint = document.createElement('div');
+            leftPoint.className = 'connection-point';
+            leftPoint.style.left = '0px';
+            leftPoint.style.top = `${height/2 - 6}px`;
+            component.appendChild(leftPoint);
+            
+            const rightPoint = document.createElement('div');
+            rightPoint.className = 'connection-point';
+            rightPoint.style.right = '0px';
+            rightPoint.style.top = `${height/2 - 6}px`;
+            component.appendChild(rightPoint);
+            
+            // Hacer los puntos conectables
+            makeConnectable(leftPoint, component);
+            makeConnectable(rightPoint, component);
+        } else if (type === 'bulb' || type === 'led') {
+            // Dos puntos de conexión (abajo)
+            const leftPoint = document.createElement('div');
+            leftPoint.className = 'connection-point';
+            leftPoint.style.left = `${width/3 - 6}px`;
+            leftPoint.style.bottom = '0px';
+            component.appendChild(leftPoint);
+            
+            const rightPoint = document.createElement('div');
+            rightPoint.className = 'connection-point';
+            rightPoint.style.right = `${width/3 - 6}px`;
+            rightPoint.style.bottom = '0px';
+            component.appendChild(rightPoint);
+            
+            makeConnectable(leftPoint, component);
+            makeConnectable(rightPoint, component);
+        } else if (type === 'switch') {
+            // Dos puntos de conexión (entrada y salida)
+            const inPoint = document.createElement('div');
+            inPoint.className = 'connection-point';
+            inPoint.style.left = '0px';
+            inPoint.style.top = `${height/2 - 6}px`;
+            component.appendChild(inPoint);
+            
+            const outPoint = document.createElement('div');
+            outPoint.className = 'connection-point';
+            outPoint.style.right = '0px';
+            outPoint.style.top = `${height/2 - 6}px`;
+            component.appendChild(outPoint);
+            
+            makeConnectable(inPoint, component);
+            makeConnectable(outPoint, component);
+            
+            // Hacer el interruptor clickeable
+            component.addEventListener('click', function(e) {
+                if (e.target.classList.contains('connection-point')) return;
+                
+                const icon = this.querySelector('i');
+                if (this.dataset.state === 'off') {
+                    this.dataset.state = 'on';
+                    icon.classList.remove('fa-toggle-off');
+                    icon.classList.add('fa-toggle-on');
+                } else {
+                    this.dataset.state = 'off';
+                    icon.classList.remove('fa-toggle-on');
+                    icon.classList.add('fa-toggle-off');
+                }
+            });
+        }
+    }
+    
+    // Hacer un componente arrastrable
+    function makeDraggable(element) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        
+        element.onmousedown = dragMouseDown;
+        
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            
+            // Solo arrastrar si no estamos conectando
+            if (isConnecting) return;
+            
+            // Obtener la posición inicial del ratón
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+        
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            
+            // Calcular la nueva posición
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            
+            // Establecer la nueva posición del elemento
+            element.style.top = (element.offsetTop - pos2) + "px";
+            element.style.left = (element.offsetLeft - pos1) + "px";
+            
+            // Actualizar las conexiones de cables
+            updateWireConnections();
+        }
+        
+        function closeDragElement() {
+            // Detener el movimiento
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+    
+    // Hacer un punto de conexión conectable
+    function makeConnectable(point, parentComponent) {
+        point.addEventListener('mousedown', startConnection);
+        
+        function startConnection(e) {
+            e.stopPropagation();
+            isConnecting = true;
+            
+            // Crear un cable temporal
+            const tempWire = document.createElement('div');
+            tempWire.className = 'wire-connection';
+            tempWire.id = 'temp-wire';
+            
+            // Guardar la posición inicial
+            const startRect = point.getBoundingClientRect();
+            const boardRect = circuitBoard.getBoundingClientRect();
+            const startX = startRect.left + startRect.width/2 - boardRect.left;
+            const startY = startRect.top + startRect.height/2 - boardRect.top;
+            
+            tempWire.style.left = `${startX}px`;
+            tempWire.style.top = `${startY}px`;
+            circuitBoard.appendChild(tempWire);
+            
+            // Mover el cable con el ratón
+            document.onmousemove = function(e) {
+                const endX = e.clientX - boardRect.left;
+                const endY = e.clientY - boardRect.top;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                tempWire.style.width = `${length}px`;
+                tempWire.style.transform = `rotate(${angle}deg)`;
+            };
+            
+            // Finalizar la conexión al soltar el ratón
+            document.onmouseup = function(e) {
+                document.onmousemove = null;
+                document.onmouseup = null;
+                
+                // Eliminar el cable temporal
+                tempWire.remove();
+                
+                // Verificar si se soltó sobre otro punto de conexión
+                const endElements = document.elementsFromPoint(e.clientX, e.clientY);
+                const endPoint = endElements.find(el => 
+                    el.classList.contains('connection-point') && 
+                    el !== point &&
+                    el.parentElement !== parentComponent
+                );
+                
+                if (endPoint) {
+                    // Crear conexión permanente
+                    createConnection(point, endPoint);
+                }
+                
+                isConnecting = false;
+            };
+        }
+    }
+    
+    // Crear una conexión entre dos puntos
+    function createConnection(startPoint, endPoint) {
+        // Verificar si ya existe esta conexión
+        const connectionExists = connections.some(conn => 
+            (conn.start === startPoint && conn.end === endPoint) || 
+            (conn.start === endPoint && conn.end === startPoint)
+        );
+        
+        if (connectionExists) return;
+        
+        // Crear la línea de conexión
+        const wire = document.createElement('div');
+        wire.className = 'wire-connection';
+        
+        // Calcular posición y ángulo
+        const startRect = startPoint.getBoundingClientRect();
+        const endRect = endPoint.getBoundingClientRect();
+        const boardRect = circuitBoard.getBoundingClientRect();
+        
+        const startX = startRect.left + startRect.width/2 - boardRect.left;
+        const startY = startRect.top + startRect.height/2 - boardRect.top;
+        const endX = endRect.left + endRect.width/2 - boardRect.left;
+        const endY = endRect.top + endRect.height/2 - boardRect.top;
+        
+        const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+        const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+        
+        wire.style.width = `${length}px`;
+        wire.style.left = `${startX}px`;
+        wire.style.top = `${startY}px`;
+        wire.style.transform = `rotate(${angle}deg)`;
+        
+        // Hacer el cable clickeable para eliminarlo
+        wire.addEventListener('click', function(e) {
+            if (e.ctrlKey || e.metaKey) { // Ctrl+Click o Cmd+Click para eliminar
+                const index = connections.findIndex(conn => conn.element === wire);
+                if (index !== -1) {
+                    connections.splice(index, 1);
+                    wire.remove();
+                }
+            }
+        });
+        
+        circuitBoard.appendChild(wire);
+        
+        // Guardar la conexión
+        connections.push({
+            start: startPoint,
+            end: endPoint,
+            element: wire
+        });
+    }
+    
+    // Actualizar las conexiones de cables cuando se mueve un componente
+    function updateWireConnections() {
+        connections.forEach(connection => {
+            const startRect = connection.start.getBoundingClientRect();
+            const endRect = connection.end.getBoundingClientRect();
+            const boardRect = circuitBoard.getBoundingClientRect();
+            
+            const startX = startRect.left + startRect.width/2 - boardRect.left;
+            const startY = startRect.top + startRect.height/2 - boardRect.top;
+            
+            const endX = endRect.left + endRect.width/2 - boardRect.left;
+            const endY = endRect.top + endRect.height/2 - boardRect.top;
+            
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+            
+            connection.element.style.width = `${length}px`;
+            connection.element.style.left = `${startX}px`;
+            connection.element.style.top = `${startY}px`;
+            connection.element.style.transform = `rotate(${angle}deg)`;
+        });
+    }
+    
+    // Verificar el circuito
+    function checkCircuit() {
+        attempts++;
+        attemptsDisplay.textContent = attempts;
+        
+        const levelData = levels[currentLevel];
+        let isValid = true;
+        let message = "";
+        
+        // Verificar componentes requeridos
+        const componentTypes = placedComponents.map(c => c.dataset.type);
+        const missingComponents = levelData.requiredComponents.filter(type => !componentTypes.includes(type));
+        
+        if (missingComponents.length > 0) {
+            isValid = false;
+            message = `Faltan componentes: ${missingComponents.join(', ')}`;
+        }
+        
+        // Verificar conexiones mínimas
+        if (connections.length < levelData.requiredConnections) {
+            isValid = false;
+            message = `Necesitas al menos ${levelData.requiredConnections} conexiones para completar el circuito.`;
+        }
+        
+        // Verificar si el circuito está cerrado (simplificado)
+        if (isValid) {
+            // Calcular valores del circuito
+            let totalVoltage = 0;
+            let totalResistance = 0;
+            
+            placedComponents.forEach(component => {
+                if (component.dataset.type === 'battery') {
+                    totalVoltage += parseFloat(component.dataset.voltage);
+                } else if (component.dataset.resistance) {
+                    totalResistance += parseFloat(component.dataset.resistance);
+                }
+            });
+            
+            const current = totalVoltage / totalResistance;
+            
+            // Verificar valores esperados para el nivel
+            if (Math.abs(totalVoltage - levelData.voltage) > 0.1) {
+                isValid = false;
+                message = `El voltaje del circuito (${totalVoltage}V) no coincide con el requerido (${levelData.voltage}V).`;
+            } else if (Math.abs(totalResistance - levelData.resistance) > 5) {
+                isValid = false;
+                message = `La resistencia del circuito (${totalResistance}Ω) no es la adecuada (${levelData.resistance}Ω).`;
+            } else {
+                // Encender los componentes que correspondan
+                placedComponents.forEach(component => {
+                    if (component.dataset.type === 'bulb' || component.dataset.type === 'led') {
+                        component.classList.add('on');
+                        const icon = component.querySelector('i');
+                        if (component.dataset.type === 'bulb') {
+                            icon.classList.remove('fa-lightbulb');
+                            icon.classList.add('fa-lightbulb-on');
+                        } else {
+                            icon.style.color = 'var(--color-led-on)';
+                        }
+                    }
+                });
+                
+                // Verificar interruptores
+                const switches = placedComponents.filter(c => c.dataset.type === 'switch');
+                const switchedOff = switches.some(sw => sw.dataset.state === 'off');
+                
+                if (switchedOff) {
+                    isValid = false;
+                    message = "¡El interruptor está apagado! Enciéndelo para completar el circuito.";
+                } else {
+                    message = "¡Circuito completado correctamente!";
+                }
+            }
+        }
+        
+        if (isValid) {
+            showFeedback(message, "success");
+            updateEnergy(10); // Recompensa por completar el nivel
+        } else {
+            showFeedback(message, "error");
+            updateEnergy(-15); // Penalización por error
+        }
+    }
+    
+    // Event listeners para los componentes arrastrables
+    document.querySelectorAll('.component').forEach(component => {
+        component.addEventListener('dragstart', function(e) {
+            draggedComponent = this;
+            e.dataTransfer.setData('text/plain', this.dataset.type);
+            setTimeout(() => {
+                this.style.display = 'none';
+            }, 0);
+        });
+        
+        component.addEventListener('dragend', function() {
+            this.style.display = 'flex';
+            draggedComponent = null;
+        });
+    });
+    
+    // Event listener para soltar componentes en el área de trabajo
+    circuitBoard.addEventListener('dragover', function(e) {
+        e.preventDefault();
+    });
+    
+    circuitBoard.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!draggedComponent) return;
+        
+        const type = draggedComponent.dataset.type;
+        const rect = circuitBoard.getBoundingClientRect();
+        const x = e.clientX - rect.left - 40;
+        const y = e.clientY - rect.top - 40;
+        
+        // Crear una copia del componente en el área de trabajo
+        createPlacedComponent(
+            type, 
+            x, 
+            y, 
+            {
+                voltage: draggedComponent.dataset.voltage || 0,
+                resistance: draggedComponent.dataset.resistance || 0
+            }
+        );
+    });
+    
+    // Event listeners para los botones de control
+    checkButton.addEventListener('click', checkCircuit);
+    resetButton.addEventListener('click', resetCircuit);
+    
+    // Cargar el primer nivel al iniciar
+    loadLevel(1);
+});
     </script>
 </body>
 </html>
