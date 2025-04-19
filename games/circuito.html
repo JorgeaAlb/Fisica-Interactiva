@@ -774,11 +774,15 @@
         },
         3: {
             title: "Circuito en paralelo",
-            instructions: "Crea un circuito en paralelo con dos focos. Ambos deben encenderse cuando el circuito esté completo.",
+            instructions: "Crea un circuito en paralelo con 2 focos y 4 cables. Ambos deben encenderse cuando el circuito esté completo.",
             requiredComponents: ["battery", "bulb", "bulb", "wire"],
             requiredConnections: 4,
             voltage: 9,
-            resistance: 25,
+            resistance: {
+                type: "parallel",
+                values: [50, 50], // Resistencia de cada foco
+                expected: 25       // Valor esperado (1/(1/50 + 1/50))
+            },
             points: 30
         },
         4: {
