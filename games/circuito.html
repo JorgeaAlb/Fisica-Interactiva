@@ -464,6 +464,11 @@
             color: var(--color-dark);
             border: 2px solid var(--color-dark);
         }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--color-error), #c0392b);
+            color: white;
+        }
         
         .game-feedback {
             text-align: center;
@@ -723,6 +728,7 @@
             <div class="game-controls">
                 <button class="btn btn-check" id="check-circuit"><i class="fas fa-bolt"></i> Encender</button>
                 <button class="btn btn-reset" id="reset-circuit"><i class="fas fa-redo"></i> Reiniciar</button>
+                <button class="btn btn-delete" id="clear-all"><i class="fas fa-trash"></i> Borrar Todo</button>
             </div>
             
             <div class="game-feedback" id="game-feedback"></div>
@@ -784,7 +790,7 @@
                     3: {
                         title: "Circuito en paralelo",
                         instructions: "Crea un circuito en paralelo con 2 focos y 4 cables. Ambos deben encenderse cuando el circuito esté completo.",
-                        requiredComponents: ["battery", "bulb", "bulb", "wire"],
+                        requiredComponents: ["battery", "bulb", "bulb", "wire", "wire", "wire", "wire"],
                         requiredConnections: 4,
                         voltage: 9,
                         resistance: {
@@ -821,6 +827,7 @@
                 const feedbackDisplay = document.getElementById('game-feedback');
                 const checkButton = document.getElementById('check-circuit');
                 const resetButton = document.getElementById('reset-circuit');
+                const clearAllButton = document.getElementById('clear-all');
                 const levelButtons = document.querySelectorAll('.level-btn');
                 const scoreDisplay = document.getElementById('score');
                 
@@ -865,10 +872,14 @@
                         voltageDisplay.textContent = `${levelData.voltage} V`;
                         resistanceDisplay.textContent = `100-150 Ω`;
                         currentDisplay.textContent = `${(levelData.voltage / 120).toFixed(2)} A`; // Valor medio para mostrar
-                    } else if (typeof levelData.resistance === 'object') {
+                    } else if (typeof levelData.resistance === 'object' && levelData.resistance.type === "parallel") {
                         voltageDisplay.textContent = `${levelData.voltage} V`;
                         resistanceDisplay.textContent = `${levelData.resistance.expected} Ω`;
                         currentDisplay.textContent = `${(levelData.voltage / levelData.resistance.expected).toFixed(2)} A`;
+                    } else if (typeof levelData.resistance === 'object') {
+                        voltageDisplay.textContent = `${levelData.voltage} V`;
+                        resistanceDisplay.textContent = `${levelData.resistance.min}-${levelData.resistance.max} Ω`;
+                        currentDisplay.textContent = `${(levelData.voltage / ((levelData.resistance.min + levelData.resistance.max)/2)).toFixed(2)} A`;
                     } else {
                         voltageDisplay.textContent = `${levelData.voltage} V`;
                         resistanceDisplay.textContent = `${levelData.resistance} Ω`;
@@ -991,6 +1002,23 @@
                     
                     // Hacer el componente arrastrable
                     makeDraggable(component);
+                    
+                    // Añadir evento para eliminar con clic derecho
+                    component.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        if (confirm("¿Eliminar este componente?")) {
+                            // Eliminar conexiones asociadas
+                            connections = connections.filter(conn => 
+                                conn.start.parentElement !== component && 
+                                conn.end.parentElement !== component
+                            );
+                            // Eliminar el componente
+                            component.remove();
+                            placedComponents = placedComponents.filter(c => c !== component);
+                            updateWireConnections(); // Actualizar cables restantes
+                            soundPowerOff.play();
+                        }
+                    });
                     
                     circuitBoard.appendChild(component);
                     placedComponents.push(component);
@@ -1341,11 +1369,15 @@
                     
                     // Verificar componentes requeridos
                     const componentTypes = placedComponents.map(c => c.dataset.type);
-                    const missingComponents = levelData.requiredComponents.filter(type => !componentTypes.includes(type));
+                    const missingComponents = levelData.requiredComponents.filter(type => {
+                        const requiredCount = levelData.requiredComponents.filter(t => t === type).length;
+                        const actualCount = componentTypes.filter(t => t === type).length;
+                        return actualCount < requiredCount;
+                    });
                     
                     if (missingComponents.length > 0) {
                         isValid = false;
-                        message = `Faltan componentes: ${missingComponents.join(', ')}`;
+                        message = `Faltan componentes: ${[...new Set(missingComponents)].join(', ')}`;
                     }
                     
                     // Verificar conexiones mínimas
@@ -1367,6 +1399,18 @@
                                 totalResistance += parseFloat(component.dataset.resistance);
                             }
                         });
+                        
+                        // Cálculo especial para circuito en paralelo (nivel 3)
+                        if (currentLevel === 3 && typeof levelData.resistance === 'object' && levelData.resistance.type === "parallel") {
+                            const bulbs = placedComponents.filter(c => c.dataset.type === 'bulb');
+                            if (bulbs.length >= 2) {
+                                // Calcular resistencia en paralelo: 1/Rt = 1/R1 + 1/R2 + ...
+                                const inverseResistance = bulbs.reduce((sum, bulb) => {
+                                    return sum + (1 / parseFloat(bulb.dataset.resistance));
+                                }, 0);
+                                totalResistance = 1 / inverseResistance;
+                            }
+                        }
                         
                         const current = totalVoltage / (totalResistance || 1); // Evitar división por cero
                         
@@ -1390,14 +1434,15 @@
                             }
                         }
                         // Verificar valores esperados para otros niveles
-                        else if (typeof levelData.resistance === 'object' && levelData.resistance.type === 'parallel') {
+                        else if (currentLevel === 3 && typeof levelData.resistance === 'object' && levelData.resistance.type === "parallel") {
                             // Verificación para circuito en paralelo (nivel 3)
                             const expectedResistance = levelData.resistance.expected;
                             if (Math.abs(totalResistance - expectedResistance) > 5) {
                                 isValid = false;
-                                message = `La resistencia total del circuito (${totalResistance}Ω) no es la esperada para un circuito en paralelo (${expectedResistance}Ω).`;
+                                message = `La resistencia total del circuito (${totalResistance.toFixed(2)}Ω) no es la esperada para un circuito en paralelo (${expectedResistance}Ω).`;
                             }
-                        } else if (currentLevel !== 4 && Math.abs(totalResistance - levelData.resistance) > 5) {
+                        } 
+                        else if (currentLevel !== 4 && typeof levelData.resistance === 'number' && Math.abs(totalResistance - levelData.resistance) > 5) {
                             isValid = false;
                             message = `La resistencia del circuito (${totalResistance}Ω) no es la adecuada (${levelData.resistance}Ω).`;
                         }
@@ -1516,12 +1561,12 @@
                 // Event listeners para los botones de control
                 checkButton.addEventListener('click', checkCircuit);
                 resetButton.addEventListener('click', resetCircuit);
+                clearAllButton.addEventListener('click', resetCircuit);
                 
                 // Cargar el primer nivel al iniciar
                 changeLevel(1);
             });
         }
-</script>
-<script src="../scripts/menu.js"></script>
+    </script>
 </body>
 </html>
