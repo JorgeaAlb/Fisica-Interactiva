@@ -439,15 +439,15 @@ footer {
             <nav>
                 <ul>
                     <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="../games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
-                    <li><a href="../calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                    <li><a href="../templates/games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="../templates/calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <div class="container">
-        <a href="../games.html" class="back-btn">← Volver a Mini Juegos</a>
+        <a href="../templates/games.html" class="back-btn">← Volver a Mini Juegos</a>
         
         <div class="game-container" id="jungle-target-game">
             <!-- Mensaje para móviles -->
@@ -1190,25 +1190,6 @@ footer {
         }
     </script>
 
-    <script>
-        // Menú hamburguesa
-        document.addEventListener('DOMContentLoaded', function() {
-            const hamburgerBtn = document.querySelector('.hamburger-btn');
-            const navUl = document.querySelector('nav ul');
-            
-            hamburgerBtn.addEventListener('click', function() {
-                navUl.classList.toggle('active');
-            });
-            
-            // Cerrar menú al hacer clic en enlaces (solo en móvil)
-            document.querySelectorAll('nav ul li a').forEach(item => {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        navUl.classList.remove('active');
-                    }
-                });
-            });
-        });
-    </script>
+<script src="../menu.js"></script>
 </body>
 </html>

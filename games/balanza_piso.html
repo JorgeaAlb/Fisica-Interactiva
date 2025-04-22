@@ -605,8 +605,8 @@
             <nav>
                 <ul>
                     <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="../games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
-                    <li><a href="../calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                    <li><a href="../templates/games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="../templates/calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
                 </ul>
             </nav>
         </div>
@@ -623,7 +623,7 @@
             </div>
         </div>
 
-        <a href="../games.html" class="back-btn">← Volver a Mini Juegos</a>
+        <a href="../templates/games.html" class="back-btn">← Volver a Mini Juegos</a>
         
         <div class="game-container">
             <h1>Balanza de Piso</h1>
@@ -1063,21 +1063,7 @@
         });
 
     </script>
-<script>
-    // Menú hamburguesa
-    document.querySelector('.hamburger-btn').addEventListener('click', function() {
-        document.querySelector('nav ul').classList.toggle('active');
-    });
-    
-    // Cerrar menú al hacer clic en enlaces (solo en móvil)
-    document.querySelectorAll('nav ul li a').forEach(item => {
-        item.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                document.querySelector('nav ul').classList.remove('active');
-            }
-        });
-    });
-</script>
+<script src="../menu.js"></script>
 
 </body>
 </html>

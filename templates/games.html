@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Mini Juegos</title>
+
 </head>
 <body>
     
     <header>
         <div class="header-container">
-            <a href="home.html" class="logo">
+            <a href="../home.html" class="logo">
                 <i class="fas fa-atom"></i>
                 <span>Física Interactiva</span>
             </a>
+
             <button class="hamburger-btn" aria-label="Menú">
                 <i class="fas fa-bars"></i>
             </button>
+
             <nav>
                 <ul>
-                    <li><a href="home.html"><i class="fas fa-home"></i> Inicio</a></li>
+                    <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
                     <li><a href="games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
                     <li><a href="calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
                 </ul>
             </nav>
+            
         </div>
     </header>
 
@@ -34,74 +39,81 @@
     <div class="games-grid">
         <!-- Juego 1: Quiz de Física -->
         <div class="game-card">
-            <img src="images/quiz.png" alt="Quiz de Física">
+            <img src="../images/quiz.png" alt="Quiz de Física">
             <div class="game-card-content">
                 <h3>Quiz de Física</h3>
                 <p>Pon a prueba tus conocimientos con este cuestionario interactivo sobre conceptos fundamentales de física.</p>
-                <a href="games/quiz.html" class="play-btn">Jugar</a>
+                <a href="../games/quiz.html" class="play-btn">Jugar</a>
             </div>
         </div>
-        
+
+        <!-- Juego 2: Laberinto Gravitatorio -->
         <div class="game-card">
-            <img src="images/laberinto.png" alt="">
+            <img src="../images/laberinto.png" alt="">
             <div class="game-card-content">
                 <h3>Laberinto Gravitatorio</h3>
                 <p>Encuentra la salida del laberinto antes de que se acabe el tiempo.</p>
-                <a href="games/laberinto.html" class="play-btn">Jugar</a>
+                <a href="../games/laberinto.html" class="play-btn">Jugar</a>
             </div>
         </div>
         
+        <!-- Juego 3: Balanza -->
         <div class="game-card">
-            <img src="images/balanza2.png" alt="Balanza de piso">
+            <img src="../images/balanza2.png" alt="Balanza de piso">
             <div class="game-card-content">
                 <h3>Balanza</h3>
                 <p>Arrastra objetos para equilibrar la balanza contra pesos predeterminados.</p>
-                <a href="games/balanza_piso.html" class="play-btn">Jugar</a>
+                <a href="../games/balanza_piso.html" class="play-btn">Jugar</a>
             </div>
         </div>
 
+        <!-- Juego 4: Circuito Electrico -->
         <div class="game-card">
-            <img src="images/circuito.png" alt="">
+            <img src="../images/circuito.png" alt="">
             <div class="game-card-content">
                 <h3>Circuito Electrico</h3>
                 <p>Conecta correctamente los componentes para completar el circuito y encender las bombillas.</p>
-                <a href="games/circuito.html" class="play-btn">Jugar</a>
+                <a href="../games/circuito.html" class="play-btn">Jugar</a>
             </div>
         </div>
         
+        <!-- Juego 5: Tiro al Blanco -->
         <div class="game-card">
-            <img src="images/tiro.png" alt="Tiro al blanco">
+            <img src="../images/tiro.png" alt="Tiro al blanco">
             <div class="game-card-content">
                 <h3>Tiro al Blanco</h3>
                 <p>Apunta con precisión y da en el centro de la diana.</p>
-                <a href="games/tiro_al_blanco.html" class="play-btn">Jugar</a>
+                <a href="../games/tiro_al_blanco.html" class="play-btn">Jugar</a>
             </div>
         </div>
          
+        <!-- Juego 6: Balanza Equilibrada -->
         <div class="game-card">
-            <img src="images/balanza.png" alt="Balanza con pesos fijos">
+            <img src="../images/balanza.png" alt="Balanza con pesos fijos">
             <div class="game-card-content">
                 <h3>Balanza Equilibrada</h3>
                 <p>Equilibra la balanza moviendo el punto de apoyo con pesos fijos en cada extremo.</p>
-                <a href="games/balanza_colgante.html" class="play-btn">Jugar</a>
+                <a href="../games/balanza_colgante.html" class="play-btn">Jugar</a>
             </div>
         </div>
 
+        <!-- Juego 7: PROXIMAMENTE -->
         <div class="game-card">
-            <img src="images/proximamente.png" alt="">
+            <img src="../images/proximamente.png" alt="">
             <div class="game-card-content">
                 <h3>PROXIMAMENTE</h3>
                 <p></p>
-                <a href="games.html" class="play-btn">Jugar</a>
+                <a href="../templates/games.html" class="play-btn">Jugar</a>
             </div>
         </div>
 
+        <!-- Juego 8: PROXIMAMENTE -->
         <div class="game-card">
-            <img src="images/proximamente.png" alt="">
+            <img src="../images/proximamente.png" alt="">
             <div class="game-card-content">
                 <h3>PROXIMAMENTE</h3>
                 <p></p>
-                <a href="games.html" class="play-btn">Jugar</a>
+                <a href="../templates/games.html" class="play-btn">Jugar</a>
             </div>
         </div>
         
@@ -114,20 +126,7 @@
     </div>
 </footer> 
 
-<script>
-    // Menú hamburguesa
-    document.querySelector('.hamburger-btn').addEventListener('click', function() {
-        document.querySelector('nav ul').classList.toggle('active');
-    });
-    
-    // Cerrar menú al hacer clic en enlaces (solo en móvil)
-    document.querySelectorAll('nav ul li a').forEach(item => {
-        item.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                document.querySelector('nav ul').classList.remove('active');
-            }
-        });
-    });
-</script>
+<script src="../menu.js"></script>
+ 
 </body>
 </html>
