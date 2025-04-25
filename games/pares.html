@@ -752,11 +752,6 @@
                             `<img src="${scientist.image}" alt="${scientist.name}">` :
                             `<div class="scientist-info">${scientist.info}</div>`;
                         break;
-                    case 4: // Nivel 4: Imagen-Fórmula
-                        cardBack.innerHTML = pairNumber === 1 ? 
-                            `<img src="${scientist.image}" alt="${scientist.name}">` :
-                            `<div class="scientist-formula">${scientist.formula}</div>`;
-                        break;
                 }
                 
                 card.appendChild(cardFront);
@@ -777,7 +772,6 @@
                     "Nivel 1: Encuentra los pares de imágenes de los físicos",
                     "Nivel 2: Empareja cada imagen con el nombre del físico",
                     "Nivel 3: Empareja cada imagen con la contribución del físico",
-                    "Nivel 4: Empareja cada imagen con la fórmula asociada al físico"
                 ];
                 levelInstruction.textContent = instructions[currentLevel - 1];
             }
@@ -861,7 +855,7 @@
                     
                     // Avanzar al siguiente nivel después de 3 segundos
                     setTimeout(() => {
-                        if (currentLevel < 4) {
+                        if (currentLevel < 3) {
                             changeLevel(currentLevel + 1);
                         } else {
                             showFeedback("¡Felicidades! Has completado todos los niveles.", true);
