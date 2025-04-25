@@ -175,6 +175,10 @@
             box-shadow: 0 0 0 2px var(--color-success);
         }
         
+        .memory-card.revealed {
+            transform: rotateY(180deg);
+        }
+        
         .card-face {
             position: absolute;
             width: 100%;
@@ -271,6 +275,11 @@
             background: white;
             color: var(--color-dark);
             border: 1px solid var(--color-dark);
+        }
+        
+        .btn-show {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
         }
         
         .game-feedback {
@@ -482,6 +491,14 @@
                 padding: 6px 8px;
                 font-size: 0.7rem;
             }
+            
+            .game-controls {
+                flex-wrap: wrap;
+            }
+            
+            .game-controls .btn {
+                min-width: 100px;
+            }
         }
     </style>
 </head>
@@ -521,7 +538,6 @@
                 <button class="level-btn active" data-level="1">Nivel 1: Imágenes</button>
                 <button class="level-btn" data-level="2">Nivel 2: Imagen-Nombre</button>
                 <button class="level-btn" data-level="3">Nivel 3: Imagen-Contribución</button>
-                <!-- <button class="level-btn" data-level="4">Nivel 4</button> -->
             </div>
             
             <div class="game-stats">
@@ -537,6 +553,7 @@
             <div class="game-feedback" id="message"></div>
             
             <div class="game-controls">
+                <button class="btn btn-show" id="showCardsBtn">Mostrar Cartas</button>
                 <button class="btn btn-check" id="newGameBtn">Nuevo Juego</button>
                 <button class="btn btn-reset" id="resetBtn">Reiniciar</button>
             </div>
@@ -589,6 +606,7 @@
             const attemptsDisplay = document.getElementById('attempts');
             const timerDisplay = document.getElementById('timer');
             const messageDisplay = document.getElementById('message');
+            const showCardsBtn = document.getElementById('showCardsBtn');
             const newGameBtn = document.getElementById('newGameBtn');
             const resetBtn = document.getElementById('resetBtn');
             const levelButtons = document.querySelectorAll('.level-btn');
@@ -657,7 +675,7 @@
             let timer = null;
             let seconds = 0;
             let gameStarted = false;
-            let canFlip = true;
+            let canFlip = false; // Inicialmente no se pueden voltear cartas
             
             // Menú hamburguesa
             hamburgerBtn.addEventListener('click', function() {
@@ -683,7 +701,7 @@
                 attempts = 0;
                 seconds = 0;
                 gameStarted = false;
-                canFlip = true;
+                canFlip = false; // No permitir voltear cartas hasta que se muestren
                 
                 // Detener el temporizador si está en marcha
                 if (timer) {
@@ -719,6 +737,35 @@
                     memoryBoard.appendChild(card.element);
                     cards.push(card.element);
                 });
+                
+                // Mostrar el botón de mostrar cartas
+                showCardsBtn.style.display = 'block';
+            }
+            
+            // Mostrar todas las cartas temporalmente
+            function showAllCards() {
+                if (gameStarted) return; // No mostrar si el juego ya comenzó
+                
+                // Mostrar todas las cartas
+                cards.forEach(card => {
+                    card.classList.add('revealed');
+                });
+                
+                // Desactivar el botón de mostrar cartas
+                showCardsBtn.style.display = 'none';
+                
+                // Después de 3 segundos, ocultar las cartas y comenzar el juego
+                setTimeout(() => {
+                    cards.forEach(card => {
+                        card.classList.remove('revealed');
+                    });
+                    
+                    // Permitir voltear cartas
+                    canFlip = true;
+                    
+                    // Mostrar mensaje de inicio
+                    showFeedback("¡Comienza el juego! Encuentra todos los pares.", 'warning');
+                }, 3000);
             }
             
             // Crear una carta según el nivel actual
@@ -892,6 +939,7 @@
             }
             
             // Event listeners
+            showCardsBtn.addEventListener('click', showAllCards);
             newGameBtn.addEventListener('click', initGame);
             resetBtn.addEventListener('click', initGame);
             
