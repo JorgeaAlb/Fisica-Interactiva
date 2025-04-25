@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Memoria de Físicos</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos generales */
+        :root {
+            --color-primary: #3498db;
+            --color-secondary: #e74c3c;
+            --color-success: #2ecc71;
+            --color-error: #e74c3c;
+            --color-warning: #f39c12;
+            --color-text: #2c3e50;
+            --color-light: #ecf0f1;
+            --color-dark: #34495e;
+            --color-gray: #95a5a6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--color-text);
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Contenido principal */
+        .container {
+            max-width: 1000px;
+            margin: 1rem auto;
+            padding: 0 0.5rem;
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+        
+        /* Estilos para la advertencia móvil */
+        .mobile-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        
+        .warning-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .warning-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .warning-content h3 {
+            color: var(--color-dark);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .warning-content p {
+            color: var(--color-text);
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        .btn-continue {
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Estilos del juego */
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .game-container {
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 15px;
+        }
+        
+        .game-container h1 {
+            color: var(--color-dark);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .level-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--color-light);
+            color: var(--color-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .level-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .level-btn:hover:not(.active) {
+            background-color: #d6eaf8;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+        
+        .stat {
+            font-weight: 600;
+            color: var(--color-dark);
+            text-align: center;
+        }
+        
+        .instructions {
+            color: black;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        
+        /* Estilos específicos del juego de memoria */
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .memory-card.matched {
+            transform: rotateY(180deg);
+            cursor: default;
+            box-shadow: 0 0 0 2px var(--color-success);
+        }
+        
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+            padding: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .card-back img {
+            width: 100%;
+            height: auto;
+            max-height: 70%;
+            object-fit: cover;
+            border-radius: 6px 6px 0 0;
+            margin-bottom: 3px;
+        }
+        
+        .card-back .scientist-name {
+            font-weight: bold;
+            margin-top: 3px;
+            color: var(--color-dark);
+            font-size: 0.8rem;
+        }
+        
+        .card-back .scientist-info {
+            font-size: 0.7rem;
+            color: var(--color-text);
+            padding: 0 3px;
+        }
+        
+        .card-back .scientist-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--color-dark);
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-check {
+            background: linear-gradient(135deg, var(--color-success), #27ae60);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: white;
+            color: var(--color-dark);
+            border: 1px solid var(--color-dark);
+        }
+        
+        .game-feedback {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: 600;
+            border-radius: 6px;
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+            font-size: 0.9rem;
+        }
+        
+        .feedback-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--color-success);
+            display: block;
+        }
+        
+        .feedback-error {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--color-error);
+            display: block;
+        }
+        
+        .feedback-warning {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--color-warning);
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Control de volumen */
+        .volume-control {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin: 0.8rem auto;
+            justify-content: center;
+        }
+        
+        .volume-control i {
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+
+        /* Media queries responsive */
+        @media (max-width: 768px) {
+            .mobile-warning {
+                display: flex;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .hamburger-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                display: none;
+            }
+            
+            nav.active {
+                display: block;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+            
+            .container {
+                padding: 5px;
+                margin: 0.5rem auto;
+            }
+            
+            .game-container {
+                padding: 10px;
+            }
+            
+            .game-container h1 {
+                font-size: 1.3rem;
+            }
+            
+            .level-selector {
+                gap: 5px;
+            }
+            
+            .level-btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                border-radius: 12px;
+            }
+            
+            .game-stats {
+                font-size: 0.8rem;
+            }
+            
+            .stat {
+                font-size: 0.8rem;
+            }
+            
+            .instructions {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+            
+            .memory-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .memory-card {
+                border-radius: 6px;
+            }
+            
+            .card-front {
+                font-size: 1rem;
+            }
+            
+            .game-controls {
+                gap: 8px;
+                margin-top: 12px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                max-width: 120px;
+            }
+            
+            .game-feedback {
+                margin-top: 12px;
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .card-back .scientist-name {
+                font-size: 0.7rem;
+            }
+            
+            .card-back .scientist-info,
+            .card-back .scientist-formula {
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .memory-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .memory-card {
+                border-radius: 5px;
+            }
+            
+            .card-back {
+                padding: 5px;
+            }
+            
+            .card-back img {
+                border-radius: 4px 4px 0 0;
+            }
+            
+            .game-container h1 {
+                font-size: 1.2rem;
+            }
+            
+            .level-btn {
+                padding: 4px 6px;
+                font-size: 0.65rem;
+            }
+            
+            .btn {
+                padding: 7px 10px;
+                font-size: 0.75rem;
+                max-width: 110px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .memory-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+            
+            .game-stats {
+                font-size: 0.75rem;
+            }
+            
+            .level-btn {
+                font-size: 0.6rem;
+                padding: 3px 5px;
+            }
+            
+            .btn {
+                padding: 6px 8px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="../home.html" class="logo">
+                <i class="fas fa-atom"></i>
+                <span>Física Interactiva</span>
+            </a>
+            <button class="hamburger-btn" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="../home.html"><i class="fas fa-home"></i> Inicio</a></li>
+                    <li><a href="../templates/games.html"><i class="fas fa-gamepad"></i> Mini Juegos</a></li>
+                    <li><a href="../templates/calculator.html"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Mensaje para móviles -->
+        <div id="mobile-warning" class="mobile-warning">
+            <div class="warning-content">
+                <div class="warning-icon">📱</div>
+                <h3>Experiencia optimizada para computadora</h3>
+                <p>Este juego funciona mejor en pantallas grandes. Puedes continuar en móvil, pero algunos elementos podrían no verse perfectamente.</p>
+                <button id="continue-mobile" class="btn btn-continue">Entendido, jugar igual</button>
+            </div>
+        </div>
+
+        <a href="../templates/games.html" class="back-btn">← Volver a Mini Juegos</a>
+        
+        <div class="game-container">
+            <h1>Memoria de Físicos Famosos</h1>
+            
+            <!-- Control de volumen -->
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" min="0" max="1" step="0.1" value="0.7" id="volumeSlider">
+            </div>
+            
+            <div class="level-selector">
+                <button class="level-btn active" data-level="1">Nivel 1: Imágenes</button>
+                <button class="level-btn" data-level="2">Nivel 2: Imagen-Nombre</button>
+                <button class="level-btn" data-level="3">Nivel 3: Imagen-Contribución</button>
+                <!-- <button class="level-btn" data-level="4">Nivel 4</button> -->
+            </div>
+            
+            <div class="game-stats">
+                <div class="stat">Pares: <span id="pairsFound">0</span>/8</div>
+                <div class="stat">Intentos: <span id="attempts">0</span></div>
+                <div class="stat">Tiempo: <span id="timer">00:00</span></div>
+            </div>
+            
+            <p class="instructions" id="levelInstruction">Encuentra todos los pares de cartas. Haz clic para voltearlas.</p>
+            
+            <div class="memory-board" id="memoryBoard"></div>
+            
+            <div class="game-feedback" id="message"></div>
+            
+            <div class="game-controls">
+                <button class="btn btn-check" id="newGameBtn">Nuevo Juego</button>
+                <button class="btn btn-reset" id="resetBtn">Reiniciar</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 Jorge Alberto · Física Interactiva · Todos los derechos reservados.</p>
+        </div>
+    </footer> 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sonidos del juego
+            const soundFlip = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+            const soundMatch = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+            const soundWin = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
+            const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+            
+            // Configurar precarga de sonidos
+            [soundFlip, soundMatch, soundWin, soundError].forEach(sound => {
+                sound.preload = 'auto';
+                sound.volume = 0.7;
+            });
+            
+            // Función para reproducir sonidos con manejo de errores
+            function playSound(sound) {
+                try {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                } catch (e) {
+                    console.log("Error con sonido:", e);
+                }
+            }
+            
+            // Control de volumen
+            const volumeSlider = document.getElementById('volumeSlider');
+            volumeSlider.addEventListener('input', function() {
+                const volume = parseFloat(this.value);
+                soundFlip.volume = volume;
+                soundMatch.volume = volume;
+                soundWin.volume = volume;
+                soundError.volume = volume;
+            });
+            
+            // Elementos del juego
+            const memoryBoard = document.getElementById('memoryBoard');
+            const pairsFoundDisplay = document.getElementById('pairsFound');
+            const attemptsDisplay = document.getElementById('attempts');
+            const timerDisplay = document.getElementById('timer');
+            const messageDisplay = document.getElementById('message');
+            const newGameBtn = document.getElementById('newGameBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const levelButtons = document.querySelectorAll('.level-btn');
+            const levelInstruction = document.getElementById('levelInstruction');
+            const mobileWarning = document.getElementById('mobile-warning');
+            const continueBtn = document.getElementById('continue-mobile');
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+            const nav = document.querySelector('nav');
+            
+            // Datos de los físicos
+            const scientistsData = [
+                {
+                    name: "Isaac Newton",
+                    image: "../images/isaac.jpeg",
+                    info: "Leyes del movimiento y gravitación universal",
+                    formula: "F = G(m₁m₂)/r²"
+                },
+                {
+                    name: "Albert Einstein",
+                    image: "../images/albert.jpeg",
+                    info: "Teoría de la relatividad",
+                    formula: "E = mc²"
+                },
+                {
+                    name: "Marie Curie",
+                    image: "../images/curie.jpeg",
+                    info: "Radioactividad",
+                    formula: "N = N₀e^(-λt)"
+                },
+                {
+                    name: "Nikola Tesla",
+                    image: "../images/tesla.jpeg",
+                    info: "Corriente alterna",
+                    formula: "V = V₀sin(ωt)"
+                },
+                {
+                    name: "Erwin Schrödinger",
+                    image: "../images/erwin.jpeg",
+                    info: "Mecánica cuántica",
+                    formula: "iħ∂Ψ/∂t = ĤΨ"
+                },
+                {
+                    name: "Galileo Galilei",
+                    image: "../images/galileo.jpeg",
+                    info: "Movimiento uniforme",
+                    formula: "d = vt"
+                },
+                {
+                    name: "Richard Feynman",
+                    image: "../images/richard.jpeg",
+                    info: "Electrodinámica cuántica",
+                    formula: "∫Dψ e^(iS/ħ)"
+                },
+                {
+                    name: "Stephen Hawking",
+                    image: "../images/hawking.jpeg",
+                    info: "Radiación de agujeros negros",
+                    formula: "T = ħc³/(8πGMk)"
+                }
+            ];
+            
+            // Variables del juego
+            let currentLevel = 1;
+            let cards = [];
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let attempts = 0;
+            let timer = null;
+            let seconds = 0;
+            let gameStarted = false;
+            let canFlip = true;
+            
+            // Menú hamburguesa
+            hamburgerBtn.addEventListener('click', function() {
+                nav.classList.toggle('active');
+            });
+            
+            // Cerrar menú al hacer clic en enlaces (solo en móvil)
+            document.querySelectorAll('nav ul li a').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        nav.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Detectar si es móvil
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            
+            // Mostrar/ocultar advertencia móvil
+            if (isMobileDevice()) {
+                mobileWarning.style.display = 'flex';
+            } else {
+                mobileWarning.style.display = 'none';
+            }
+            
+            // Continuar en móvil
+            continueBtn.addEventListener('click', function() {
+                mobileWarning.style.display = 'none';
+                playSound(soundFlip);
+            });
+            
+            // Inicializar el juego
+            function initGame() {
+                // Limpiar el tablero
+                memoryBoard.innerHTML = '';
+                cards = [];
+                flippedCards = [];
+                matchedPairs = 0;
+                attempts = 0;
+                seconds = 0;
+                gameStarted = false;
+                canFlip = true;
+                
+                // Detener el temporizador si está en marcha
+                if (timer) {
+                    clearInterval(timer);
+                    timer = null;
+                }
+                
+                // Actualizar displays
+                pairsFoundDisplay.textContent = matchedPairs;
+                attemptsDisplay.textContent = attempts;
+                timerDisplay.textContent = '00:00';
+                
+                // Actualizar instrucciones según nivel
+                updateInstructions();
+                
+                // Ocultar mensaje
+                messageDisplay.style.display = 'none';
+                messageDisplay.className = 'game-feedback';
+                
+                // Crear pares de cartas según el nivel
+                const cardPairs = [];
+                scientistsData.forEach(scientist => {
+                    // Crear dos cartas para cada científico
+                    cardPairs.push(createCard(scientist, 1));
+                    cardPairs.push(createCard(scientist, 2));
+                });
+                
+                // Barajar las cartas
+                const shuffledCards = shuffleArray(cardPairs);
+                
+                // Añadir cartas al tablero
+                shuffledCards.forEach(card => {
+                    memoryBoard.appendChild(card.element);
+                    cards.push(card.element);
+                });
+            }
+            
+            // Crear una carta según el nivel actual
+            function createCard(scientist, pairNumber) {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.id = scientist.name + '-' + pairNumber;
+                card.dataset.name = scientist.name;
+                
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-face card-front';
+                cardFront.innerHTML = '<i class="fas fa-atom"></i>';
+                
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-face card-back';
+                
+                // Contenido según el nivel
+                switch(currentLevel) {
+                    case 1: // Nivel 1: Imagen-Imagen
+                        cardBack.innerHTML = `
+                            <img src="${scientist.image}" alt="${scientist.name}">
+                        `;
+                        break;
+                    case 2: // Nivel 2: Imagen-Nombre
+                        cardBack.innerHTML = pairNumber === 1 ? 
+                            `<img src="${scientist.image}" alt="${scientist.name}">` :
+                            `<div class="scientist-name">${scientist.name}</div>`;
+                        break;
+                    case 3: // Nivel 3: Imagen-Contribución
+                        cardBack.innerHTML = pairNumber === 1 ? 
+                            `<img src="${scientist.image}" alt="${scientist.name}">` :
+                            `<div class="scientist-info">${scientist.info}</div>`;
+                        break;
+                    case 4: // Nivel 4: Imagen-Fórmula
+                        cardBack.innerHTML = pairNumber === 1 ? 
+                            `<img src="${scientist.image}" alt="${scientist.name}">` :
+                            `<div class="scientist-formula">${scientist.formula}</div>`;
+                        break;
+                }
+                
+                card.appendChild(cardFront);
+                card.appendChild(cardBack);
+                
+                card.addEventListener('click', flipCard);
+                
+                return {
+                    element: card,
+                    scientist: scientist,
+                    pairNumber: pairNumber
+                };
+            }
+            
+            // Actualizar instrucciones según nivel
+            function updateInstructions() {
+                const instructions = [
+                    "Nivel 1: Encuentra los pares de imágenes de los físicos",
+                    "Nivel 2: Empareja cada imagen con el nombre del físico",
+                    "Nivel 3: Empareja cada imagen con la contribución del físico",
+                    "Nivel 4: Empareja cada imagen con la fórmula asociada al físico"
+                ];
+                levelInstruction.textContent = instructions[currentLevel - 1];
+            }
+            
+            // Barajar array
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+            
+            // Voltear carta
+            function flipCard() {
+                if (!canFlip || this === flippedCards[0] || this.classList.contains('matched')) return;
+                
+                // Iniciar el temporizador en el primer movimiento
+                if (!gameStarted) {
+                    startTimer();
+                    gameStarted = true;
+                }
+                
+                playSound(soundFlip);
+                this.classList.add('flipped');
+                flippedCards.push(this);
+                
+                // Comprobar si hay un par
+                if (flippedCards.length === 2) {
+                    canFlip = false;
+                    attempts++;
+                    attemptsDisplay.textContent = attempts;
+                    
+                    if (flippedCards[0].dataset.name === flippedCards[1].dataset.name) {
+                        // Par encontrado
+                        playSound(soundMatch);
+                        matchedPairs++;
+                        pairsFoundDisplay.textContent = matchedPairs;
+                        
+                        flippedCards[0].classList.add('matched');
+                        flippedCards[1].classList.add('matched');
+                        
+                        flippedCards = [];
+                        canFlip = true;
+                        
+                        // Comprobar si se ha ganado
+                        if (matchedPairs === 8) {
+                            endGame(true);
+                        }
+                    } else {
+                        // No es un par
+                        setTimeout(() => {
+                            playSound(soundError);
+                            flippedCards[0].classList.remove('flipped');
+                            flippedCards[1].classList.remove('flipped');
+                            flippedCards = [];
+                            canFlip = true;
+                        }, 1000);
+                    }
+                }
+            }
+            
+            // Iniciar temporizador
+            function startTimer() {
+                timer = setInterval(() => {
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const secs = (seconds % 60).toString().padStart(2, '0');
+                    timerDisplay.textContent = `${minutes}:${secs}`;
+                }, 1000);
+            }
+            
+            // Finalizar juego
+            function endGame(isWin) {
+                clearInterval(timer);
+                
+                if (isWin) {
+                    playSound(soundWin);
+                    showFeedback(`¡Ganaste! Completaste el nivel en ${timerDisplay.textContent} con ${attempts} intentos.`, true);
+                    
+                    // Avanzar al siguiente nivel después de 3 segundos
+                    setTimeout(() => {
+                        if (currentLevel < 4) {
+                            changeLevel(currentLevel + 1);
+                        } else {
+                            showFeedback("¡Felicidades! Has completado todos los niveles.", true);
+                        }
+                    }, 3000);
+                }
+            }
+            
+            // Mostrar feedback
+            function showFeedback(message, type) {
+                messageDisplay.textContent = message;
+                
+                if (type === true) {
+                    messageDisplay.className = 'game-feedback feedback-success';
+                } else if (type === 'warning') {
+                    messageDisplay.className = 'game-feedback feedback-warning';
+                } else {
+                    messageDisplay.className = 'game-feedback feedback-error';
+                }
+                
+                messageDisplay.style.display = 'block';
+            }
+            
+            // Cambiar de nivel
+            function changeLevel(newLevel) {
+                currentLevel = newLevel;
+                
+                // Actualizar botones de nivel
+                levelButtons.forEach(btn => {
+                    btn.classList.toggle('active', parseInt(btn.dataset.level) === currentLevel);
+                });
+                
+                initGame();
+            }
+            
+            // Event listeners
+            newGameBtn.addEventListener('click', initGame);
+            resetBtn.addEventListener('click', initGame);
+            
+            // Botones de nivel
+            levelButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    changeLevel(parseInt(this.dataset.level));
+                });
+            });
+            
+            // Iniciar el juego
+            initGame();
+        });
+    </script>
+    <script src="../scripts/menu.js"></script>
+</body>
+</html>
