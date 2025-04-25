@@ -57,65 +57,6 @@
             width: 100%;
         }
         
-        /* Estilos para la advertencia móvil */
-        .mobile-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(3px);
-        }
-        
-        .warning-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 90%;
-            width: 100%;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .warning-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        
-        .warning-content h3 {
-            color: var(--color-dark);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .warning-content p {
-            color: var(--color-text);
-            margin-bottom: 15px;
-            line-height: 1.5;
-            font-size: 0.9rem;
-        }
-        
-        .btn-continue {
-            background: linear-gradient(135deg, var(--color-primary), #2980b9);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-continue:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
         /* Estilos del juego */
         .back-btn {
             display: inline-block;
@@ -382,10 +323,6 @@
 
         /* Media queries responsive */
         @media (max-width: 768px) {
-            .mobile-warning {
-                display: flex;
-            }
-            
             .header-container {
                 flex-direction: column;
                 align-items: flex-start;
@@ -569,20 +506,10 @@
     </header>
 
     <main class="container">
-        <!-- Mensaje para móviles -->
-        <div id="mobile-warning" class="mobile-warning">
-            <div class="warning-content">
-                <div class="warning-icon">📱</div>
-                <h3>Experiencia optimizada para computadora</h3>
-                <p>Este juego funciona mejor en pantallas grandes. Puedes continuar en móvil, pero algunos elementos podrían no verse perfectamente.</p>
-                <button id="continue-mobile" class="btn btn-continue">Entendido, jugar igual</button>
-            </div>
-        </div>
-
         <a href="../templates/games.html" class="back-btn">← Volver a Mini Juegos</a>
         
         <div class="game-container">
-            <h1>Memoria de Físicos Famosos</h1>
+            <h1>Pares de Físicos Famosos</h1>
             
             <!-- Control de volumen -->
             <div class="volume-control">
@@ -666,8 +593,6 @@
             const resetBtn = document.getElementById('resetBtn');
             const levelButtons = document.querySelectorAll('.level-btn');
             const levelInstruction = document.getElementById('levelInstruction');
-            const mobileWarning = document.getElementById('mobile-warning');
-            const continueBtn = document.getElementById('continue-mobile');
             const hamburgerBtn = document.querySelector('.hamburger-btn');
             const nav = document.querySelector('nav');
             
@@ -746,24 +671,6 @@
                         nav.classList.remove('active');
                     }
                 });
-            });
-            
-            // Detectar si es móvil
-            function isMobileDevice() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-            
-            // Mostrar/ocultar advertencia móvil
-            if (isMobileDevice()) {
-                mobileWarning.style.display = 'flex';
-            } else {
-                mobileWarning.style.display = 'none';
-            }
-            
-            // Continuar en móvil
-            continueBtn.addEventListener('click', function() {
-                mobileWarning.style.display = 'none';
-                playSound(soundFlip);
             });
             
             // Inicializar el juego
