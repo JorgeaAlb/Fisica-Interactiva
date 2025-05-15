@@ -571,10 +571,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Sonidos del juego
-            const soundFlip = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
-            const soundMatch = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
-            const soundWin = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
-            const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
+            const soundFlip = new Audio('../sound/flip.wav');
+            const soundMatch = new Audio('../sound/match.wav');
+            const soundWin = new Audio('../sound/correcta.wav');
+            const soundError = new Audio('../sound/wrong.wav');
             
             // Configurar precarga de sonidos
             [soundFlip, soundMatch, soundWin, soundError].forEach(sound => {
