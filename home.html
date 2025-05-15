@@ -1,58 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Física Interactiva</title>
-
+    
+    <!-- Favicon (logo en la pestaña) -->
+    <link rel="icon" href="images/logo.ico" type="image/x-icon">
+    <!-- Para mejor compatibilidad con navegadores modernos -->
+    <link rel="icon" type="image/png" href="images/logo.ico">
+    
     <link rel="stylesheet" href="style/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
 </head>
 <body>
     
-
     <div class="hero">
-    <h1>Física Interactiva</h1>
-    <!-- <p>Aprende física de forma divertida y práctica.</p> -->
-    <div class="options">
-        <a href="templates/games.html" class="option-btn"><i class="fas fa-gamepad"></i> Mini Juegos</a>
-        <a href="templates/calculator.html" class="option-btn"><i class="fas fa-calculator"></i> Calculadora</i></a>
+        <h1>Física Interactiva</h1>
+        <div class="options">
+            <a href="templates/games.html" class="option-btn"><i class="fas fa-gamepad"></i> Mini Juegos</a>
+            <a href="templates/calculator.html" class="option-btn"><i class="fas fa-calculator"></i> Calculadora</i></a>
+        </div>
     </div>
-    
+
+    <audio id="introSound" src="sound/home.mp3" preload="auto"></audio>
+
     <script>
-        // Menú hamburguesa
-        document.querySelector('.hamburger-btn').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('active');
-        });
-        
-        // Cerrar menú al hacer clic en enlaces (solo en móvil)
-        document.querySelectorAll('nav ul li a').forEach(item => {
-            item.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    document.querySelector('nav ul').classList.remove('active');
-                }
+        const introSound = document.getElementById('introSound');
+
+        const playIntro = () => {
+            introSound.play().catch(error => {
+                console.log("Error al reproducir el sonido:", error);
             });
-        });
+            document.removeEventListener('click', playIntro);
+        };
+
+        document.addEventListener('click', playIntro);
     </script>
-    
-</div>
-
-<audio id="introSound" src="sound/home.mp3" preload="auto"></audio>
-
-<script>
-    const introSound = document.getElementById('introSound');
-
-    const playIntro = () => {
-        introSound.play().catch(error => {
-            console.log("Error al reproducir el sonido:", error);
-        });
-        document.removeEventListener('click', playIntro);
-    };
-
-    document.addEventListener('click', playIntro);
-</script>
-
 </body>
 </html>
