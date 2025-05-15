@@ -686,10 +686,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Sonidos del juego
-            const soundSuccess = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
-            const soundError = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3');
-            const soundDrop = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3');
-            const soundLevelUp = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+            const soundSuccess = new Audio('../sound/correcta.wav');
+            const soundError = new Audio('../sound/incorrecta.wav');
+            const soundDrop = new Audio('../sound/pop.mp3');
+            const soundLevelUp = new Audio('../sound/nivel_completado.mp3');
             
             // Configurar precarga de sonidos
             [soundSuccess, soundError, soundDrop, soundLevelUp].forEach(sound => {
