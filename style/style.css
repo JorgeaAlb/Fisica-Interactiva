@@ -442,3 +442,17 @@ footer {
         font-size: 2rem;
     }
 }
+.instagram-icon {
+    text-decoration: none; /* Quitar subrayado azul */
+    display: inline-flex;   /* Mejor alineación vertical */
+    align-items: center;    /* Centrar verticalmente el icono */
+}
+
+.instagram-icon i {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    font-size: 1.2em; /* Opcional: tamaño del ícono */
+    margin-right: 5px; /* Separación entre el ícono y la letra J */
+}
